@@ -1,0 +1,151 @@
+% \documentclass{easychair}
+\documentclass[EPiC]{easychair}
+%\documentclass[EPiCempty]{easychair}
+%\documentclass[debug]{easychair}
+%\documentclass[verbose]{easychair}
+%\documentclass[notimes]{easychair}
+%\documentclass[withtimes]{easychair}
+%\documentclass[a4paper]{easychair}
+%\documentclass[letterpaper]{easychair}
+
+\usepackage{doc}
+
+% use this if you have a long article and want to create an index
+% \usepackage{makeidx}
+
+% In order to save space or manage large tables or figures in a
+% landcape-like text, you can use the rotating and pdflscape
+% packages. Uncomment the desired from the below.
+%
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+%\makeindex
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+\title{Evaluation of Axiom Selection Techniques}
+% \thanks{Other people who contributed to this document include Maria Voronkov
+%   (Imperial College and EasyChair) and Graham Gough (The University of
+%   Manchester).}}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{
+Qinghua Liu\inst{1}
+ \and
+Zihao Wang\inst{2}
+ \and
+Zishi Wu\inst{2}
+ \and
+Geoff Sutcliffe\inst{2}
+% \thanks{Did numerous tests and provided a lot of suggestions}
+}
+
+% Institutes for affiliations are also joined by \and,
+\institute{
+  System Credibility Automatic Verification Engineering Lab of Sichuan Province, Southwest Jiaotong University, China, \email{qhliu@my.swjtu.edu.cn}
+\and
+   University of Miami, USA, \email{zxw526@miami.edu,ry04ert39@miami.edu,geoff@cs.miami.edu}
+ }
+
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+
+\authorrunning{Liu, Wang, Wu, Sutcliffe}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+\titlerunning{Evaluation of Axiom Selection Techniques}
+
+\begin{document}
+
+\maketitle
+%------------------------------------------------------------------------------
+\begin{abstract}
+Evaluation of Axiom Selection Techniques
+\end{abstract}
+%------------------------------------------------------------------------------
+\section{Introduction}
+\label{Introduction}
+
+GEOFF:
+
+Intro about axiom selection. Most evaluation by running ATP, the "proofs in
+the pudding". Takes time, propose Quantitative metrics based on selection.
+Our methods. Evaluation vs Vampire and E.
+Section on selection techniques - cuttion (eg Isabelle) and projection (eg
+SInE). 
+
+%------------------------------------------------------------------------------
+\section{Selection Metrics}
+\label{Metrics}
+
+GEOFF:
+Description of metrics.
+
+%------------------------------------------------------------------------------
+\section{Our Selection Techniques}
+\label{Ours}
+
+GEOFF:
+Intro
+
+QINGHUA:
+Qinghua's distance
+
+%------------------------------------------------------------------------------
+\subsection{Infinity Cut}
+\label{QinghuaInf}
+
+2. Qinghua's infinity cut
+%------------------------------------------------------------------------------
+\subsection{A(nother) Machine Learning Approach}
+\label{QinghuaML}
+
+3. Qinghua's ML?
+%------------------------------------------------------------------------------
+\subsection{Our Selection Techniques}
+\label{Zihao}
+
+4. Zihaos way
+%------------------------------------------------------------------------------
+\subsection{Our Selection Techniques}
+\label{Zishi}
+
+5. Zishi's way
+%------------------------------------------------------------------------------
+\section{Evaluation Results}
+\label{Results}
+
+Section on evaluation
+1. The test set(s)... Should we add tptp based set?
+2. The results
+3. The conclusions
+
+Data on MPTPTP2078, Number of problems in test set, how selected (proofs,
+hence already solved, but possibly with axiom selection), numbers of
+different adequate subsets, average ratio nntp/all
+
+%------------------------------------------------------------------------------
+\section{Conclusion}
+\label{Conclusion}
+
+GEOFF:
+1. Future correlate metrics with ptover performance (or do now!)
+
+%------------------------------------------------------------------------------
+\label{sect:bib}
+\bibliographystyle{plain}
+\bibliography{Bibliography}
+%------------------------------------------------------------------------------
+\end{document}
+%------------------------------------------------------------------------------
+
