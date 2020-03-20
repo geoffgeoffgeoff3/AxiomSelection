@@ -177,8 +177,23 @@ $0$ and $\argmaxA_{w'_{ij} \subset W} (w'_{ij})$.
 \end{itemize}
 
 We then ran the spectral clustering on the similarity matrix $W$ in order to 
-obtain $k$ clusters $K_{1}, K_{2}, ..., K_{k}$. The cluster containing the
-conjecture is denoted as $K_{c}$, where $1 \leq c \leq k$.
+obtain $k$ clusters $K_{1}, K_{2}, ..., K_{k}$. Let $K_{c}$ denote the 
+cluster containing the conjecture, where $1 \leq c \leq k$. We deem an
+iteration of the k-means clustering to be successful if $K_{c}$ contains at 
+least one set of axioms that prove the conjecture and unsuccessful if
+otherwise.
+
+One drawback of the k-means algorithm is that it selects different initial 
+centroids each time, and therefore the resulting clusterings vary across 
+trials. To address this problem, we devised a way of choosing the initial 
+centroids in a deterministic manner:
+\begin{itemize}
+\item Rank the axioms by degree centrality and select the top $k-1$ axioms.
+\item Select the rows of $X$ corresponding to the feature vectors of the
+selected axioms, and the row of $X$ corresponding to the feature vector of 
+the conjecture. Use these $k$ feature vectors as the initial centroids of 
+the k-means algorithm. 
+\end{itemize}
 
 %------------------------------------------------------------------------------
 \section{Evaluation Results}
