@@ -134,16 +134,16 @@ with the computed feature matrix as input in order to partition the nodes of
 a graph into $k$ clusters.
 
 Given a graph $G = (V, E)$ with a corresponding edge weight matrix $W$ such 
-that $W_{ij}$ contains the measure of similarity between nodes $i$ and $j$ 
-for all pairs of nodes $(i, j)$ in the graph, spectral clustering first 
-constructs the graph Laplacian matrix $L = D - W$, where $D$ is the degree 
-matrix of the graph. It then computes the normalized Laplacian matrix 
-$L_{norm}$ using the following definition by Chung \cite{Chung1997}:
+that $W_{ij}$ is a measure of similarity between nodes $i$ and $j$ 
+in the graph, spectral clustering first constructs the graph Laplacian matrix 
+$L = D - W$, where $D$ is the degree matrix of the graph. It then computes 
+the normalized Laplacian matrix $L_{norm}$ using the following definition by 
+Chung \cite{Chung1997}:
 \begin{align}
 L_{norm} = I - D^{-1/2} W D^{-1/2}
 \end{align}
 
-Eigen-decomposition is performed on $L_{norm}$ to obtain its eigenvector
+Eigendecomposition is then performed on $L_{norm}$ to obtain its eigenvector
 matrix $V$. Let $X$ denote the first $k$ columns of the matrix $V$. 
 $X$ serves as a feature matrix that summarizes the similarity between the 
 nodes in graph $G$. We run the k-means algorithm on $X$ in order to partition
@@ -152,16 +152,16 @@ the nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
 We applied the spectral clustering algorithm to the problem of axiom 
 selection as follows. First, we converted a logic problem into a 
 fully-connected graph, where each node represents a logical formulae, and
-each edge weight represents the dissimilarity between two nodes. Let $W'$
-denote the matrix of dissimilarity weights of the graph. We then devised 
-the following method to convert each dissimilarity edge weight 
-$w'_{ij} \subset W'$ into a similarity edge weight $w_{ij}$:
+each edge $e_{ij}$ has weight $w'_{ij}$ representing the dissimilarity 
+between two nodes $i$ and $j$. Let $W'$ denote the matrix of dissimilarity 
+weights of the graph. We devised the following method to convert each 
+dissimilarity weight $w'_{ij} \subset W'$ into a similarity weight $w_{ij}$:
 \begin{align}
 w_{ij} = \textrm{max}(0, 
 	\argmaxA_{w'_{ij} \subset W} (w'_{ij} \neq \infty) - w'_{ij})
 \end{align}
 
-The conversion method consists of three possibilities:
+The conversion method consists of three cases:
 \begin{itemize}
 \item If the dissimilarity weight $w'_{ij}$ is equal to the largest 
 dissimilarity weight that is not infinity, or if $w'_{ij} = \infty$, then 
