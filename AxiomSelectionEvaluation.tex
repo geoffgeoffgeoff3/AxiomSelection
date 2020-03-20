@@ -204,9 +204,15 @@ axioms and must therefore contain a solution. For each problem, we iterated
 through all possible values of $k$ and for each value of $k$, we calculated 
 two metrics, selectivity and projection score. We recorded the value of $k$
 that yielded the best projection score for each problem, and denote that 
-$k$ as $k_{best}$. We then used median regression to fit a regression line 
-of $k_{best}$ to $N$ and obtain a model for predicting $k_{best}$ for a 
-problem containing $N$ logical formulae.
+$k$ as $k_{best}$. 
+
+We used median regression to fit a regression line of $k_{best}$ to $N$ and
+obtained a model to predict $k_{best}$ for a given problem containing $N$
+logical formulae. We then used the model to obtain for each problem a 
+predicted $k_{best}$, and applied each predicted $k_{best}$ on the spectral
+clustering algorithm to obtain a selectivity metric and projection score
+metric for that problem. The results of this entire process is shown in the 
+following section.
 
 %------------------------------------------------------------------------------
 \section{Evaluation Results}
