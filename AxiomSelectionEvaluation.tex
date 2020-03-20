@@ -210,23 +210,34 @@ derive it empirically. To this end, for a logic problem with $N$ logical
 formulae, we tried all values of $k \in [2, N/2]$. We skipped the trivial 
 case of $k=1$ because if there is only one cluster, then it contains all the 
 axioms and must therefore contain a solution. For each problem, we iterated
-through all possible values of $k$ and for each value of $k$, we calculated 
-two metrics, selectivity and projection score. We recorded the value of $k$
-that yielded the best projection score for each problem, and denote that 
-value of $k$ as $k_{best}$. 
+through all possible values of $k$ and for each value of $k$, we ran the
+spectral clustering algorithm and calculated two metrics: selectivity and 
+projection score. We recorded the value of $k$ that yielded the best 
+projection score for each problem, and denote that value of $k$ as 
+$k_{best}$. This method of axiom selection, which we call 
+\textbf{Spectral Clustering with all k's}, becomes computationally 
+expensive for large problems with more than a few hundred axioms.
 
-We used median regression to fit a regression line of $k_{best}$ to $N$ and
-obtained a model to predict $k_{best}$ for a given problem containing $N$
-logical formulae. We then used the model to obtain for each problem a 
-predicted $k_{best}$, and applied each predicted $k_{best}$ on the spectral
+We devised a second method for axiom selection, called 
+\textbf{Spectral Clustering with predicted $\mathbf{k_{best}}$}, that uses 
+the data collected from the aforementioned process. First, we fitted two
+median regression lines, one for the Bushy problems and another for the 
+Chainy problems, onto the data of $k_{best}$ versus $N$. This gave us a 
+linear model to predict $k_{best}$ for a given problem containing $N$
+logical formulae, which we used to obtain for each problem a predicted
+$k_{best}$. Finally, we applied each predicted $k_{best}$ on the spectral
 clustering algorithm to obtain a selectivity metric and projection score
-metric for that problem. The results of this entire process is shown in the 
-following section.
-
+metric for each problem. The median regression best fit lines are shown 
+below.
 \begin{figure}[H]
-\centering
-\includegraphics[scale=0.41]{median-regression-optimal-k-bushy.png}
-\includegraphics[scale=0.41]{median-regression-optimal-k-chainy.png}
+	\centering
+	\includegraphics[scale=0.41]{median-regression-optimal-k-bushy.png}
+	\includegraphics[scale=0.41]{median-regression-optimal-k-chainy.png}
+	\vspace{1mm}
+	\caption{ Median regression prediction line of $k_{best}$ as a function 
+	of the total number of axioms in a problem, for Bushy problems (left) 
+	and Chainy problems (right). }
+	\label{fig:median-regression}
 \end{figure}
 
 %------------------------------------------------------------------------------
