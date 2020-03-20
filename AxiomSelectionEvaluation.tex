@@ -121,6 +121,34 @@ Qinghua's distance
 \label{Zishi}
 
 5. Zishi's way
+
+Spectral clustering is an algorithm used in Network Science research to
+cluster together similar nodes in a graph. For a detailed tutorial of the 
+algorithm, refer to von Luxburg \cite{vonLuxburg2007}. The algorithm consists 
+of two main parts: 1) computing a feature matrix that summarizes the 
+similarity between the nodes in a graph, and 2) using the feature matrix as
+an input for k-means clustering in order to partition the nodes of a graph
+into $k$ clusters.
+
+Given a graph $G = (V, E)$ with a corresponding edge weight matrix $W$ such 
+that $W_{ij}$ contains the measure of similarity between nodes $i$ and $j$ 
+for all pairs of nodes $(i, j)$ in the graph, spectral clustering first 
+constructs the graph Laplacian matrix $L = D - W$, where $D$ is the degree 
+matrix of the graph. It then computes the normalized Laplacian matrix 
+$L_{norm}$ using the following definition by Chung \cite{Chung1997}:
+$$
+L_{norm} = I - D^{-1/2} W D^{-1/2}
+$$
+
+Eigen-decomposition is performed on $L_{norm}$ to obtain its eigenvector
+matrix $V$. Let $X$ denote the first $k$ columns of the matrix $V$. 
+$X$ serves as a feature matrix that summarizes the similarity between the 
+nodes in graph $G$. We run the k-means algorithm on $X$ in order to partition
+the nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
+
+We applied the spectral clustering algorithm to the problem of axiom 
+selection as follows.
+
 %------------------------------------------------------------------------------
 \section{Evaluation Results}
 \label{Results}
