@@ -120,24 +120,28 @@ Qinghua's distance
 
 4. Zihaos way
 %------------------------------------------------------------------------------
-\subsection{Our Selection Techniques}
+\subsection{Spectral Clustering with Optimized k}
 \label{Zishi}
 
-5. Zishi's way
-
 Spectral clustering is an algorithm used in Network Science research to
-cluster together similar nodes in a graph. For a detailed tutorial of the 
-algorithm, refer to von Luxburg \cite{vonLuxburg2007}. The algorithm consists 
-of two main parts: 1) computing a feature matrix that summarizes the 
-similarity between the nodes in a graph, and 2) applying k-means clustering
-with the computed feature matrix as input in order to partition the nodes of 
-a graph into $k$ clusters.
+cluster together similar nodes in a graph. We provide a brief summary of the
+algorithm, but readers who want a more detailed tutorial should refer to
+von Luxburg \cite{vonLuxburg2007}. 
+Given a graph $G = (V, E)$ with an edge weight matrix $W$ such that element
+$w_{ij}$ is a measure of similarity between nodes $v_{i} \in V$ and 
+$v_{j} \in V$, the algorithm performs two procedures:
+\begin{enumerate}
+\item Computing a feature matrix $X$ that summarizes the similarity 
+between the nodes in $V$.
 
-Given a graph $G = (V, E)$ with a corresponding edge weight matrix $W$ such 
-that $W_{ij}$ is a measure of similarity between nodes $i$ and $j$ 
-in the graph, spectral clustering first constructs the graph Laplacian matrix 
-$L = D - W$, where $D$ is the degree matrix of the graph. It then computes 
-the normalized Laplacian matrix $L_{norm}$ using the following definition by 
+\item Applying the k-means clustering algorithm with $X$ as input in order 
+to partition the nodes into $k$ clusters, denoted by
+$K_{1}, K_{2}, ..., K_{k}$.
+\end{enumerate}
+
+To accomplish the first procedure, spectral clustering constructs the 
+degree matrix $D$ of the graph. It proceeds to compute the normalized 
+graph Laplacian matrix $L_{norm}$ using the following definition by 
 Chung \cite{Chung1997}:
 \begin{align}
 L_{norm} = I - D^{-1/2} W D^{-1/2}
@@ -146,16 +150,16 @@ L_{norm} = I - D^{-1/2} W D^{-1/2}
 Eigendecomposition is then performed on $L_{norm}$ to obtain its eigenvector
 matrix $V$. Let $X$ denote the first $k$ columns of the matrix $V$. 
 $X$ serves as a feature matrix that summarizes the similarity between the 
-nodes in graph $G$. The k-means algorithm is applied on $X$ to finally obtain 
-a partition the nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
+nodes in $G$. The second procedure applies the k-means algorithm on $X$
+obtain a partition of the nodes into $k$ clusters.
 
 We applied the spectral clustering algorithm to the problem of axiom 
 selection as follows. First, we converted a logic problem into a 
-fully-connected graph, where each node represents a logical formulae, and
-each edge $e_{ij}$ has weight $w'_{ij}$ representing the dissimilarity 
-between two nodes $i$ and $j$. Let $W'$ denote the matrix of dissimilarity 
-weights of the graph. We devised the following method to convert each 
-dissimilarity weight $w'_{ij} \subset W'$ into a similarity weight $w_{ij}$:
+fully-connected graph $G = (V, E)$, where each node $v_{i}$ represents a 
+logical formulae, and each edge $e_{ij}$ has weight $w'_{ij}$ representing 
+the dissimilarity between nodes $v_{i}$ and $v_{j}$. We devised the following 
+method to convert each dissimilarity weight $w'_{ij}$ into a similarity 
+weight $w_{ij}$:
 \begin{align}
 w_{ij} = \textrm{max}(0, 
 	\argmaxA_{w'_{ij} \subset W} (w'_{ij} \neq \infty) - w'_{ij})
@@ -176,7 +180,8 @@ yield a similarity weight $w_{ij}$ that is between
 $0$ and $\argmaxA_{w'_{ij} \subset W} (w'_{ij})$.
 \end{itemize}
 
-We then ran the spectral clustering algorithm on the similarity matrix $W$ 
+We used the method to convert the dissimilarity matrix $W'$ into a similarity
+matrix $W$. We then ran the spectral clustering algorithm on $W$ 
 to obtain $k$ clusters $K_{1}, K_{2}, ..., K_{k}$. Let $K_{c}$ denote the 
 cluster containing the conjecture, where $1 \leq c \leq k$. We deem an
 iteration of the k-means clustering to be successful if $K_{c}$ contains at 
@@ -204,7 +209,7 @@ axioms and must therefore contain a solution. For each problem, we iterated
 through all possible values of $k$ and for each value of $k$, we calculated 
 two metrics, selectivity and projection score. We recorded the value of $k$
 that yielded the best projection score for each problem, and denote that 
-$k$ as $k_{best}$. 
+value of $k$ as $k_{best}$. 
 
 We used median regression to fit a regression line of $k_{best}$ to $N$ and
 obtained a model to predict $k_{best}$ for a given problem containing $N$
