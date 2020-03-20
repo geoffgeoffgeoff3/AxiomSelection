@@ -146,8 +146,8 @@ L_{norm} = I - D^{-1/2} W D^{-1/2}
 Eigendecomposition is then performed on $L_{norm}$ to obtain its eigenvector
 matrix $V$. Let $X$ denote the first $k$ columns of the matrix $V$. 
 $X$ serves as a feature matrix that summarizes the similarity between the 
-nodes in graph $G$. We run the k-means algorithm on $X$ in order to partition
-the nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
+nodes in graph $G$. The k-means algorithm is applied on $X$ to finally obtain 
+a partition the nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
 
 We applied the spectral clustering algorithm to the problem of axiom 
 selection as follows. First, we converted a logic problem into a 
