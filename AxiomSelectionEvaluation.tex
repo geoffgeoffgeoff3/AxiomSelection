@@ -9,6 +9,7 @@
 %\documentclass[letterpaper]{easychair}
 
 \usepackage{doc}
+\usepackage{float}
 
 % use this if you have a long article and want to create an index
 % \usepackage{makeidx}
@@ -19,6 +20,9 @@
 %
 % \usepackage{rotating}
 % \usepackage{pdflscape}
+
+% Make sure to include the slash at the end of the path name
+\graphicspath{ {./figures/} }
 
 % Macros
 \DeclareMathOperator*{\argmaxA}{arg\,max} % Jan Hlavacek - argmax function
@@ -150,8 +154,8 @@ L_{norm} = I - D^{-1/2} W D^{-1/2}
 Eigendecomposition is then performed on $L_{norm}$ to obtain its eigenvector
 matrix $V$. Let $X$ denote the first $k$ columns of the matrix $V$. 
 $X$ serves as a feature matrix that summarizes the similarity between the 
-nodes in $G$. The second procedure applies the k-means algorithm on $X$
-obtain a partition of the nodes into $k$ clusters.
+nodes in $G$. The second procedure then applies the k-means algorithm on $X$
+to partition the nodes into $k$ clusters.
 
 We applied the spectral clustering algorithm to the problem of axiom 
 selection as follows. First, we converted a logic problem into a 
@@ -195,8 +199,8 @@ centroids in a deterministic manner:
 \begin{itemize}
 \item Rank the axioms by degree centrality and select the top $k-1$ axioms.
 \item Select the rows of $X$ corresponding to the feature vectors of the
-selected axioms, and the row of $X$ corresponding to the feature vector of 
-the conjecture. Use these $k$ feature vectors as the initial centroids of 
+selected $k-1$ axioms, and the row of $X$ corresponding to the feature vector 
+of the conjecture. Use these $k$ feature vectors as the initial centroids of 
 the k-means algorithm. 
 \end{itemize}
 
@@ -218,6 +222,12 @@ predicted $k_{best}$, and applied each predicted $k_{best}$ on the spectral
 clustering algorithm to obtain a selectivity metric and projection score
 metric for that problem. The results of this entire process is shown in the 
 following section.
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.34]{median-regression-optimal-k-bushy.png}
+\includegraphics[scale=0.34]{median-regression-optimal-k-chainy.png}
+\end{figure}
 
 %------------------------------------------------------------------------------
 \section{Evaluation Results}
