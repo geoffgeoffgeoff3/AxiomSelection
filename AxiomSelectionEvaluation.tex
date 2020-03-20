@@ -129,9 +129,9 @@ Spectral clustering is an algorithm used in Network Science research to
 cluster together similar nodes in a graph. For a detailed tutorial of the 
 algorithm, refer to von Luxburg \cite{vonLuxburg2007}. The algorithm consists 
 of two main parts: 1) computing a feature matrix that summarizes the 
-similarity between the nodes in a graph, and 2) using the feature matrix as
-an input for k-means clustering in order to partition the nodes of a graph
-into $k$ clusters.
+similarity between the nodes in a graph, and 2) applying k-means clustering
+with the computed feature matrix as input in order to partition the nodes of 
+a graph into $k$ clusters.
 
 Given a graph $G = (V, E)$ with a corresponding edge weight matrix $W$ such 
 that $W_{ij}$ contains the measure of similarity between nodes $i$ and $j$ 
@@ -157,11 +157,11 @@ denote the matrix of dissimilarity weights of the graph. We then devised
 the following method to convert each dissimilarity edge weight 
 $w'_{ij} \subset W'$ into a similarity edge weight $w_{ij}$:
 \begin{align}
-w_{ij} = \textrm{max}(0, \argmaxA_{w'_{ij} \subset W} 
-						(w'_{ij} \neq \infty) - w'_{ij})
+w_{ij} = \textrm{max}(0, 
+	\argmaxA_{w'_{ij} \subset W} (w'_{ij} \neq \infty) - w'_{ij})
 \end{align}
 
-The conversion method consists of three possibilities.:
+The conversion method consists of three possibilities:
 \begin{itemize}
 \item If the dissimilarity weight $w'_{ij}$ is equal to the largest 
 dissimilarity weight that is not infinity, or if $w'_{ij} = \infty$, then 
@@ -176,6 +176,9 @@ yield a similarity weight $w_{ij}$ that is between
 $0$ and $\argmaxA_{w'_{ij} \subset W} (w'_{ij})$.
 \end{itemize}
 
+We then ran the spectral clustering on the similarity matrix $W$ in order to 
+obtain $k$ clusters $K_{1}, K_{2}, ..., K_{k}$. The cluster containing the
+conjecture is denoted as $K_{c}$, where $1 \leq c \leq k$.
 
 %------------------------------------------------------------------------------
 \section{Evaluation Results}
