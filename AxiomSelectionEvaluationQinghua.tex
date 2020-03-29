@@ -1,0 +1,186 @@
+% \documentclass{easychair}
+\documentclass[EPiC]{easychair}
+%\documentclass[EPiCempty]{easychair}
+%\documentclass[debug]{easychair}
+%\documentclass[verbose]{easychair}
+%\documentclass[notimes]{easychair}
+%\documentclass[withtimes]{easychair}
+%\documentclass[a4paper]{easychair}
+%\documentclass[letterpaper]{easychair}
+\newtheorem{definition}{Definition}
+\usepackage{doc}
+
+% use this if you have a long article and want to create an index
+% \usepackage{makeidx}
+
+% In order to save space or manage large tables or figures in a
+% landcape-like text, you can use the rotating and pdflscape
+% packages. Uncomment the desired from the below.
+%
+% \usepackage{rotating}
+% \usepackage{pdflscape}
+
+%\makeindex
+
+%% Front Matter
+%%
+% Regular title as in the article class.
+%
+\title{Evaluation of Axiom Selection Techniques}
+% \thanks{Other people who contributed to this document include Maria Voronkov
+%   (Imperial College and EasyChair) and Graham Gough (The University of
+%   Manchester).}}
+
+% Authors are joined by \and. Their affiliations are given by \inst, which indexes
+% into the list defined using \institute
+%
+\author{
+Qinghua Liu\inst{1}
+ \and
+Zihao Wang\inst{2}
+ \and
+Zishi Wu\inst{2}
+ \and
+Geoff Sutcliffe\inst{2}
+% \thanks{Did numerous tests and provided a lot of suggestions}
+}
+
+% Institutes for affiliations are also joined by \and,
+\institute{
+  System Credibility Automatic Verification Engineering Lab of Sichuan Province, Southwest Jiaotong University, China, \email{qhliu@my.swjtu.edu.cn}
+\and
+   University of Miami, USA, \email{zxw526@miami.edu,ry04ert39@miami.edu,geoff@cs.miami.edu}
+ }
+
+%  \authorrunning{} has to be set for the shorter version of the authors' names;
+% otherwise a warning will be rendered in the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \authorrunning
+% will be rejected by EasyChair
+
+\authorrunning{Liu, Wang, Wu, Sutcliffe}
+
+% \titlerunning{} has to be set to either the main title or its shorter
+% version for the running heads. When processed by
+% EasyChair, this command is mandatory: a document without \titlerunning
+% will be rejected by EasyChair
+\titlerunning{Evaluation of Axiom Selection Techniques}
+
+\begin{document}
+
+\maketitle
+%------------------------------------------------------------------------------
+\begin{abstract}
+Evaluation of Axiom Selection Techniques
+\end{abstract}
+%------------------------------------------------------------------------------
+\section{Introduction}
+\label{Introduction}
+
+GEOFF:
+
+Intro about axiom selection. Most evaluation by running ATP, the "proofs in
+the pudding". Takes time, propose Quantitative metrics based on selection.
+Our methods. Evaluation vs Vampire and E.
+Section on selection techniques - cuttion (eg Isabelle) and projection (eg
+SInE). 
+
+%------------------------------------------------------------------------------
+\section{Selection Metrics}
+\label{Metrics}
+
+GEOFF:
+Description of metrics.
+
+%------------------------------------------------------------------------------
+\section{Our Selection Techniques}
+\label{Ours}
+
+GEOFF:
+Intro
+
+Terms are the most basic structure in the first-order logic. A reasonable term metric used for evaluating the term difference can guarantee its extended atom and formula metrics perform well to some extent. For two arbitrary terms $t_1$, $t_2$, suppose that there exists a substitution $\theta$ such that $t_1\theta=t_2$, which reflects the changes from $t_1$ to $t_2$. In fact, not all two arbitrary terms exist a substitution, and it is thus unrealistic to evaluate the term difference by substitutions directly. To address the problem, we take the least general generalization $lgg$ of terms as a medium to evaluate the term difference. Besides, we also propose a way to evaluate the term functional and variable difference separately.
+
+Let $\theta=\{X_1\mapsto u_1, ..., X_n\mapsto u_n, Y_1\mapsto Z_1, ..., Y_m\mapsto Z_m\}$ is an arbitrary substitution, where $u_1$, ..., $u_n$ are functional terms, $Z_1$, ..., $Z_m$ are variables, and $X_1$, ..., $X_n$, $Y_1$, ..., $Y_m$ are distinct variables. functional substitution $\theta_f$ and variable substitution $\theta_v$ are defined as:
+	\begin{center}
+		$\theta_{f}=\{X_1\mapsto u_1, ..., X_n\mapsto u_n\}$, \\
+		$\theta_{v}=\{Y_1\mapsto Z_1, ..., Y_m\mapsto Z_m\}$.
+	\end{center}
+	
+Obviously, $\theta_f\cap\theta_v =\emptyset$ and $\theta_f\cup\theta_v = \theta$. In some special cases, $\theta_f$ or $\theta_v$ may be empty substitution. We then put forward two functions $S_f$ and $S_v$, mapping $\theta_f$ and $\theta_v$ to real numbers, in which $S_f$ mainly considers the functional difference while $S_v$ only takes the variable difference into account. $S_f$, $S_v$ are defined as: 
+	\begin{align}
+		S_{f}(\theta_{f}) &= \sum_{i=1}^{n}occ_{t_1}(X_i)\times(\sum_{f\in F(u_i)}w(f)\times occ_{u_i}(f)); \\
+		S_{v}(\theta_{v}) &=\sum_{j=1}^{m}w_{0}\times(log(occ_{t_2}^{+}(Z_{j})-occ_{t_1}^{+}(Y_{j}))).
+	\end{align}
+Where,
+\begin{itemize}
+	\item $w$ is a weight function that maps every function symbol to a non-negative integer;
+	\item $w_0$ ($w_0 > 0$) is a constant representing the weight for every variable;
+	\item $F(t)$ denotes the set of all function symbols appearing in a term $t$;
+	\item $occ_{t}(s)$ denotes the number of occurrences of a function or variable symbol $s$ in a term $t$;
+	\item $occ_{t}^{+}(v)$ denotes the number of deep occurrences of a variable $v$ in a term $t$, which takes the depth of $v$ (the number of symbols nested $v$) into consideration. For every occurrence $i$ of $v$, the depth of $v$ is $n_i$ ($n_i\geq$ 0). $occ_{t}^{+}(v)=\sum_{i=1}^{occ_{t}(v)}n_i+occ_{t}(v)$.
+\end{itemize}
+
+Given two terms $t_1$ and $t_2$, $t$ is their the least general generalization with substitutions $\theta_1$ and $\theta_2$, such that $t\theta_1=t_1$ and $t\theta_2=t_2$. Based on proposed functions, the term difference function $d_T$ between $t_1$ and $t_2$ is defined as:
+\begin{align}
+	d_T(t_1, t_2) & = \sqrt{[S_f(\theta_{1_{f}})+S_f(\theta_{2_{f}})]^2+[S_v(\theta_{1_{v}})+S_v(\theta_{2_{v}})]^2}.
+\end{align}
+
+Compatible atoms can also construct the most general generalization as terms do in the same way, thus the $d_T$ can apply to them naturally. As for incompatible atoms, we simply think their difference is extremely huge due to they can not be unified. Hence,
+\begin{itemize}
+	\item if $A_1$, $A_2$ are compatible atoms, $d_A(A_1,A_2)=d_T(A_1, A_2)$;
+	\item if $A_1$, $A_2$ are incompatible atoms, $d_A(A_1,A_2)=+\infty$.
+\end{itemize}
+
+First-order formulas are the connection of atoms, logical connectives and quantifiers. Ignoring all the logical connectives and quantifiers, formulas are sets of atoms. The inference will not happen in such formulas, if all atoms in them are incompatible. We assert that the more incompatible atoms two formulas have, the less similar the formulas are.
+
+Suppose that $F_1$, $F_2$ are two formulas. Let $D_1=\{A_1, ..., A_n\}$ and $D_2=\{B_1, ..., B_m\}$, which denote the corresponding atom sets, respectively. $Penatly=|\{d_A(A_i,B_j) | d_A(A_i,B_j)=(+\infty, +\infty)\}|$ is the number of incompatible atom pairs $(A_i,B_j)$ in formulas. The formula difference function $d_F$ between $F_1$ and $F_2$ is defined as:
+	\begin{align}
+		d_F(F_1, F_2) = \frac{n\times m}{Pentaly}\times min\{d_A(A_i, B_j) |\forall i \in \{1,2,...,n\}, \forall j \in \{1,2,...,m\}\}.
+	\end{align}
+%------------------------------------------------------------------------------
+\subsection{Infinity Cut}
+Given an ATP, a large available axiom set $\mathcal{A}$, and a conjecture $c$, the axiom selection task is to predict axioms from $\mathcal{A}$ that are likely to be useful for the ATP for constructing a proof of $c$.
+
+Here, we design a simple conjecture-oriented axiom selection method called $infinity$ $cut$, where formula difference function we proposed is used to measure the difference between axioms and the given conjecture. $infinity$ $cut$ only takes these axioms whose scores of the difference to the conjecture are less than $+\infty$ into consideration.
+%------------------------------------------------------------------------------
+\subsection{A(nother) Machine Learning Approach}
+\label{QinghuaML}
+3. Qinghua's ML?
+%------------------------------------------------------------------------------
+\subsection{Our Selection Techniques}
+\label{Zihao}
+
+4. Zihaos way
+%------------------------------------------------------------------------------
+\subsection{Our Selection Techniques}
+\label{Zishi}
+
+5. Zishi's way
+%------------------------------------------------------------------------------
+\section{Evaluation Results}
+\label{Results}
+
+Section on evaluation
+1. The test set(s)... Should we add tptp based set?
+2. The results
+3. The conclusions
+
+Data on MPTPTP2078, Number of problems in test set, how selected (proofs,
+hence already solved, but possibly with axiom selection), numbers of
+different adequate subsets, average ratio nntp/all
+
+%------------------------------------------------------------------------------
+\section{Conclusion}
+\label{Conclusion}
+
+GEOFF:
+1. Future correlate metrics with ptover performance (or do now!)
+
+%------------------------------------------------------------------------------
+\label{sect:bib}
+\bibliographystyle{plain}
+\bibliography{Bibliography}
+%------------------------------------------------------------------------------
+\end{document}
+%------------------------------------------------------------------------------
+
