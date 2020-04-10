@@ -159,7 +159,7 @@ This paper is structured as follows:
 Section~\ref{Metrics} describes the evaluation metrics.
 Section~\ref{Ours} describes a distance measure between formulae, and
 some new axiom selection techniques based on that measure.
-Section~\ref{Results} provudes evaluation results.
+Section~\ref{Results} provides evaluation results.
 Section~\ref{Conclusion} concludes.
 
 %------------------------------------------------------------------------------
@@ -168,14 +168,14 @@ Section~\ref{Conclusion} concludes.
 
 The principle behind the new evaluation metrics is to compare the selected
 subsets of axioms with known adequate sets of axioms.
-In this work the MPTP2078 corpus has been used.
+In this work the MPTP2078 corpus was used.
 The MPTP2078 corpus has two versions of each of the 2078 problems: 
 the \emph{bushy} (small) versions contain only the Mizar axioms that are
 known to be directly used in the proof of the conjecture, and 
 the \emph{chainy} versions contain all the axioms that precede the conjecture
 in the Mizar library order.
-The bushy problems contain between N and M axioms, while the chainy versions
-contain between N and M axioms.
+The bushy problems have between 10 and 67 axioms, while the chainy versions
+have between 10 and 4563 axioms.
 
 In order to extract known adequate sets of axioms for each problem, Vampire
 and E were run on the problems with a 300s CPU limit.
@@ -196,6 +196,14 @@ The pruney problems have been been used to augment the MPTP2078 corpus.
 The pruney problems provide adequate known sets of axioms against which
 selected sets of axioms can be compared.
 
+The smallest fraction of axioms in an adequate set ranges from 0.01 to 1.0
+for the bushy problems, and from 0.0002 to 0.36 for the chainy problems.
+The average fractions are 0.29 and 0.01, respectively.
+These fractions show that axiom selection can significantly reduce the
+number of axioms to be considered, which in turn normally significantly
+reduces the search space for an ATP system.
+As is expected the numbers are more extreme for the larger chainy problems.
+
 The metrics introduced in the paper aim to measure how precisely the
 axiom selection matches a known adequate set of axioms.
 Two types of axiom selection technique are considered:
@@ -214,12 +222,11 @@ Define the following measures:
 \begin{packed_itemize}
 \item The \emph{n}umber of \emph{ax}ioms in a \emph{p}roblem: \emph{NAxP}.
 \item The \emph{n}umber of axioms \emph{sel}ected: \emph{NSel}.
-\item The \emph{n}umber of axioms \emph{n}eeded \emph{f}or a \emph{p}roof, i.e., 
-      the number of axioms in a specified pruney problem: \emph{NNfP}.
+\item The \emph{n}umber of axioms \emph{n}eeded \emph{f}or a \emph{p}roof, 
+      i.e., the number of axioms in an adequate set: \emph{NNfP}.
 \item In a ranked list of axioms, the number of axioms upto the lowest ranked
-      axiom needed for a proof, i.e., the \emph{n}number of axioms
-      \emph{n}eeded \emph{f}rom the \emph{r}anking: \emph{NNRa}.
-\item
+      axiom needed for a proof, i.e., the \emph{n}umber of axioms
+      needed from the \emph{ra}nking: \emph{NNRa}.
 \end{packed_itemize}
 
 The metrics are:
@@ -244,15 +251,17 @@ For a set of problems, the selectivity is the average over the problems'
 selectivities.
 
 \paragraph{Ranking precision.}
+(Applicable to only ranking techniques.)
 \emph{NNRa}$/$\emph{NSel}.
 This measures how precisely the technique chooses the ``best ones'' from
 the ranked list of axioms.
 Larger values are better.
 
 \paragraph{Ranking density.}
+(Applicable to only ranking techniques.)
 \emph{NNfP}$/$\emph{NNRa}.
 This measures the quality of the ranking - axioms in an adequate set should
-be highly ranked, which in turn allows a smaller number to be selected if
+be ranked highly, which in turn allows a smaller number to be selected if
 the ranking precision is good.
 Larger values are better.
 
@@ -269,8 +278,20 @@ technique selects an adequate set of axioms.
 \section{Our Selection Techniques}
 \label{Ours}
 
-GEOFF:
-Intro
+Our motivation for developing these metric was based in a need to evaluate
+new axiom selection techniques that the first three authors are developing.
+These techniques are described in this section, and their performance
+according to the metrics is evaluate in Section~\ref{Results}.
+It turns out that a very simply technique performs surprisingly well
+on our test set.
+
+All of the new techniques are based on how strongly two formulae are
+related (as is the case in many axiom selection techniques).
+In our work we use a novel measure of relatedness, which is described
+in Section~\ref{QinghuaDistance}.
+The individual new techniques are then described in 
+Sections~\ref{QinghuaInf}~to~\ref{Zihao}.
+
 %------------------------------------------------------------------------------
 \subsection{The Symmetric Weighted-average Extended Hutchinson Distance}
 \label{QinghuaDistance}
@@ -409,11 +430,6 @@ to the conjecture are less than $+\infty$ into consideration.
 
 3. Qinghua's ML?
 %------------------------------------------------------------------------------
-\subsection{Our Selection Techniques}
-\label{Zihao}
-
-4. Zihaos way
-%------------------------------------------------------------------------------
 \subsection{Spectral Clustering with Optimized k}
 \label{Zishi}
 
@@ -483,17 +499,88 @@ below.
 \end{figure}
 
 %------------------------------------------------------------------------------
+\subsection{Our Selection Techniques}
+\label{Zihao}
+
+4. Zihaos way
+%------------------------------------------------------------------------------
 \section{Evaluation Results}
 \label{Results}
 
-Section on evaluation
-1. The test set(s)... Should we add tptp based set?
-2. The results
-3. The conclusions
+The new axiom selection techniques, and the axiom selection in the Vampire 
+and E ATP systems, were evaluated using the metrics.
+Two problems sets were used: the first was a set of 325 smaller problems
+from the MPTP2078 corpus, selected by taking the chainy problems with less
+that 500 axiom and for which the pruney problem exists, and the second was
+the full set of 2078 problems (the smaller set was useful for initial
+quick testing, and also necessary because some of the techniques took
+more than the available computing resources for the full set)
 
-Data on MPTPTP2078, Number of problems in test set, how selected (proofs,
-hence already solved, but possibly with axiom selection), numbers of
-different adequate subsets, average ratio nntp/all
+Tables~\ref{Results325} and ~\ref{Results2078} show the results, including
+a row for the base case in which all axioms are selected.
+The columns are the Precision (Pre), Selectivity (Sel), Ranking 
+precision (RPr), Ranking density (RDe), Adequacy (Ade and Ade\%),
+Adequate precision (APr), Adequate selectivity (ASe), Adequate
+ranking precision (ARPr), and Adequate ranking density (ARDe).
+
+\begin{table}[hbt]
+\begin{center}
+\begin{tabular}{|l|rrrr|rrrrr|}
+\hline
+\multicolumn{10}{|c|}{Bushy Problems} \\
+System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe  & ARPr & ARDe \\
+\hline
+Base          & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
+E 2.4         & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
+Vampire 4.4   & 0.32 & 0.80 &  -   &  -   & 0.80 & 0.39 & 0.84 &  -   &  -   \\
+Q$\infty$ cut & 0.43 & 0.54 & 0.62 & 0.52 & 0.74 & 0.58 & 0.61 & 0.84 & 0.71 \\
+Spectral cl.  & 0.24 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
+Greedy path   & 0.37 & 0.77 &  -   &  -   & 0.97 & 0.38 & 0.80 &  -   &  -   \\
+\hline
+\multicolumn{10}{|c|}{Chainy Problems} \\
+System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe & ARPr & ARDe \\
+\hline
+Base          & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
+E 2.4         & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
+Vampire 4.4   & 0.08 & 0.55 &  -   &  -   & 0.94 & 0.09 & 0.56 &  -   &  -   \\
+Q$\infty$ cut & 0.08 & 0.53 & 0.57 & 0.21 & 0.85 & 0.09 & 0.56 & 0.67 & 0.25 \\
+Spectral cl.  & 0.05 & 0.48 &  -   &  -   & 0.65 & 0.08 & 0.63 &  -   &  -   \\
+Greedy path   & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
+\hline
+\end{tabular}
+\caption{Results for the 325 smaller problems}
+\label{Results325}
+\end{center}
+\end{table}
+
+\begin{table}[hbt]
+\begin{center}
+\begin{tabular}{|l|rrrr|rrrrr|}
+\hline
+\multicolumn{10}{|c|}{Bushy Problems} \\
+System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe  & ARPr & ARDe \\
+\hline
+Base          & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
+E 2.4         & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
+Vampire 4.4   & 0.21 & 0.69 &  -   &  -   & 0.58 & 0.36 & 0.76 &  -   &  -   \\
+Q$\infty$ cut & 0.33 & 0.54 & ???? & ???? & 0.69 & 0.48 & 0.59 & ???? & ???? \\
+\hline
+\multicolumn{10}{|c|}{Chainy Problems} \\
+System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe & ARPr & ARDe \\
+\hline
+Base          & ???? & 1.00 &  -   &  -   & 1.00 & ???? & 1.00 &  -   &  -   \\
+E 2.4         & 0.02 & 0.98 &  -   &  -   & 1.00 & 0.02 & 0.98 &  -   &  -   \\
+Vampire 4.4   & 0.03 & 0.40 &  -   &  -   & 0.87 & 0.04 & 0.41 &  -   &  -   \\
+Q$\infty$ cut & 0.03 & 0.53 & ???? & ???? & 0.83 & 0.04 & 0.56 & ???? & ???? \\
+\hline
+\end{tabular}
+\caption{Results for all 2078 problems}
+\label{Results2078}
+\end{center}
+\end{table}
+
+Ade is a double edged sword.
+
 
 %------------------------------------------------------------------------------
 \section{Conclusion}
@@ -501,6 +588,8 @@ different adequate subsets, average ratio nntp/all
 
 GEOFF:
 1. Future correlate metrics with ptover performance (or do now!)
+
+Make Zishi and Zihao efficient enough for 2078 testing.
 
 %------------------------------------------------------------------------------
 \label{sect:bib}
