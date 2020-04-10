@@ -61,9 +61,9 @@
 \author{
 Qinghua Liu\inst{1}
  \and
-Zihao Wang\inst{2}
- \and
 Zishi Wu\inst{2}
+ \and
+Zihao Wang\inst{2}
  \and
 Geoff Sutcliffe\inst{2}
 % \thanks{Did numerous tests and provided a lot of suggestions}
@@ -73,7 +73,7 @@ Geoff Sutcliffe\inst{2}
 \institute{
   System Credibility Automatic Verification Engineering Lab of Sichuan Province, Southwest Jiaotong University, China, \email{qhliu@my.swjtu.edu.cn}
 \and
-   University of Miami, USA, \email{zxw526@miami.edu,zishi@cs.miami.edu,geoff@cs.miami.edu}
+   University of Miami, USA, \email{zishi@cs.miami.edu,zxw526@miami.edu,geoff@cs.miami.edu}
  }
 
 %  \authorrunning{} has to be set for the shorter version of the authors' names;
@@ -94,15 +94,25 @@ Geoff Sutcliffe\inst{2}
 \maketitle
 %------------------------------------------------------------------------------
 \begin{abstract}
-Evaluation of Axiom Selection Techniques
+``Large Theory'' problems in Automated Theorem Proving have been
+defined as having {\em many functors and predicates, and many axioms of
+which only a few are required for the proof of a theorem}.
+One key to solving large theory problems is selecting a subset of the axioms
+that is adequate for finding a proof.
+This paper presents metrics for evaluating axiom selection techniques
+without having to run an ATP system on the problems formed from selected
+axioms and the conjecture.
+This paper additionally presents some new axiom selection techniques.
+The new techniques, and the axiom selection in the Vampire and E ATP 
+systems, are evaluated using the proposed metrics.
 \end{abstract}
 %------------------------------------------------------------------------------
 \section{Introduction}
 \label{Introduction}
 
 ``Large Theory'' problems in Automated Theorem Proving (ATP) have been 
-defined as having {\em many functors and predicates, and many axioms of 
-which only a few are required for the proof of a theorem}.
+defined \cite{Sut20-CASC} as having {\em many functors and predicates, and 
+many axioms of which only a few are required for the proof of a theorem}.
 Large theory problems are mostly found in corpora that contain very many
 problems, e.g., the MPTP2078 corpus \cite{AH+14}, the Mizar 40 corpus
 \cite{KU15-M40}, and the GRUNGE corpus \cite{BG+19}.
@@ -142,8 +152,8 @@ provides a first-pass evaluation that allows axiom selection techniques to
 be rapidly tested and refined.
 The approach has the advantage of being independent of a chosen ATP system.
 This paper additionally presents some new axiom selection techniques. 
-The new techniques the axiom selection built into the Vampire \cite{KV13} and 
-E \cite{SCV19} ATP systems, are evaluated using the proposed metrics.
+The new techniques, and the axiom selection in the Vampire \cite{KV13} 
+and E \cite{SCV19} ATP systems, are evaluated using the proposed metrics.
 
 This paper is structured as follows:
 Section~\ref{Metrics} describes the evaluation metrics.
@@ -160,37 +170,100 @@ The principle behind the new evaluation metrics is to compare the selected
 subsets of axioms with known adequate sets of axioms.
 In this work the MPTP2078 corpus has been used.
 The MPTP2078 corpus has two versions of each of the 2078 problems: 
-the {\em bushy} (small) versions contain only the Mizar axioms that are
+the \emph{bushy} (small) versions contain only the Mizar axioms that are
 known to be directly used in the proof of the conjecture, and 
-the {\em chainy} versions contain all the axioms that precede the conjecture
+the \emph{chainy} versions contain all the axioms that precede the conjecture
 in the Mizar library order.
 The bushy problems contain between N and M axioms, while the chainy versions
 contain between N and M axioms.
 
 In order to extract known adequate sets of axioms for each problem, Vampire
 and E were run on the problems with a 300s CPU limit.
-This produced proofs for NNNN of the bushy problems (KKK by Vampire and JJJ
-by E) and MMMM of the chainy problems (KKK by Vampire and JJJ by E).
+This produced proofs for 1486 of the bushy problems (1474 by Vampire and 1263
+by E) and 1345 of the chainy problems (1333 by Vampire and 815 by E).
 For the problems solved, the axioms used in proofs were extracted as
 known adequate sets of axioms, and new problems formed from those adequate
 sets with the corresponding conjectures.
+These were dubbed the \emph{pruney} problems.
 Additionally, in testing the new axiom selection techniques some further
-different adequate sets were found, and further new problems created.
-This resulted in new problems for NNNN of the bushy problems and
-MMMM of the chainy problems.
+different adequate sets were found, and further pruney problems created.
+This resulted in new pruney problems for 65 of the bushy problems and
+24 of the chainy problems.
 For some problems multiple adequate sets of axioms were found, resulting in
-a total of GGGG new problems for the NNNN bushy problems and a total of
-HHHH new problems for the MMMM chainy problems.
-The new problems based on the adequate sets have been been used to augment
-the MPTP2078 corpus, as the {\em Pruney} problems.
+a total of 1829 pruney problems for the 1551 bushy problems and a total of
+3093 pruney problems for the 1369 chainy problems.
+The pruney problems have been been used to augment the MPTP2078 corpus.
 The pruney problems provide adequate known sets of axioms against which
 selected sets of axioms can be compared.
 
-GEOFF:
-Description of metrics.
-Section on selection techniques - cuttion (eg Isabelle) and projection (eg
-SInE). 
+The metrics introduced in the paper aim to measure how precisely the
+axiom selection matches a known adequate set of axioms.
+Two types of axiom selection technique are considered:
+\begin{itemize}
+\item \emph{Ranking} techniques, which take all the axioms as input, rank them
+      according to how likely they are expected to be necessary for a proof,
+      and take the best ones from the ranking.
+      This technique is used in, e.g., Isabelle's Sledgehammer \cite{PB10}.
+\item \emph{Projection} techniques, which take all the axioms as input and
+      directly return a selection of axioms.
+      (Ranking is thus a special case of projection.)
+      This technique is used in, e.g., Vampire \cite{HV11}.
+\end{itemize}
 
+Define the following measures:
+\begin{packed_itemize}
+\item The \emph{n}umber of \emph{ax}ioms in a \emph{p}roblem: \emph{NAxP}.
+\item The \emph{n}umber of axioms \emph{sel}ected: \emph{NSel}.
+\item The \emph{n}umber of axioms \emph{n}eeded \emph{f}or a \emph{p}roof, i.e., 
+      the number of axioms in a specified pruney problem: \emph{NNfP}.
+\item In a ranked list of axioms, the number of axioms upto the lowest ranked
+      axiom needed for a proof, i.e., the \emph{n}number of axioms
+      \emph{n}eeded \emph{f}rom the \emph{r}anking: \emph{NNRa}.
+\item
+\end{packed_itemize}
+
+The metrics are:
+
+\paragraph{Precision.}
+If the selection technique selects an adequate set of axioms, i.e., a subset
+of one of the known adequate sets, then the minimum \emph{NNfP}$/$\emph{NSel},
+over the known adequate sets.
+If the selection technique selects an inadequate set, then $0.00$.
+Larger values are better.
+The intuition here is a probability that using the selection will result
+in a proof (and that is $0.00$ if an inadequate set is selected).
+For a set of problems, the precision is the average over the problems'
+precisions.
+
+\paragraph{Selectivity.}
+\emph{NSel}$/$\emph{NAxP}.
+This measures the fraction of axioms selected.
+$1.00$ results from selecting all the axioms - the base case.
+Smaller values are better.
+For a set of problems, the selectivity is the average over the problems'
+selectivities.
+
+\paragraph{Ranking precision.}
+\emph{NNRa}$/$\emph{NSel}.
+This measures how precisely the technique chooses the ``best ones'' from
+the ranked list of axioms.
+Larger values are better.
+
+\paragraph{Ranking density.}
+\emph{NNfP}$/$\emph{NNRa}.
+This measures the quality of the ranking - axioms in an adequate set should
+be highly ranked, which in turn allows a smaller number to be selected if
+the ranking precision is good.
+Larger values are better.
+
+\paragraph{Adequacy.}
+For a set of problems, the adequacy is the fraction of problems for which
+the selection technique selects an adequate set of axioms.
+Larger values are better.
+
+\paragraph{Adequate precision/selectivity/ranking density/ranking efficiency.}
+For a set of problems, the average over the problems for which the selection 
+technique selects an adequate set of axioms.
 
 %------------------------------------------------------------------------------
 \section{Our Selection Techniques}
@@ -330,11 +403,6 @@ measure the difference between axioms and the given conjecture.
 $infinity$ $cut$ only takes these axioms whose scores of the difference 
 to the conjecture are less than $+\infty$ into consideration.
 
-%------------------------------------------------------------------------------
-\subsection{Infinity Cut}
-\label{QinghuaInf}
-
-2. Qinghua's infinity cut
 %------------------------------------------------------------------------------
 \subsection{A(nother) Machine Learning Approach}
 \label{QinghuaML}
