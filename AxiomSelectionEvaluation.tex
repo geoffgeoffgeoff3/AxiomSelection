@@ -239,20 +239,18 @@ If the selection technique selects an inadequate set, then $0.00$.
 Larger values are better.
 The intuition here is a probability that using the selection will result
 in a proof (and that is $0.00$ if an inadequate set is selected).
-For a set of problems, the precision is the average over the problems'
-precisions.
 
 \paragraph{Selectivity.}
 \emph{NSel}$/$\emph{NAxP}.
 This measures the fraction of axioms selected.
 $1.00$ results from selecting all the axioms - the base case.
 Smaller values are better.
-For a set of problems, the selectivity is the average over the problems'
-selectivities.
 
 \paragraph{Ranking precision.}
 (Applicable to only ranking techniques.)
+If the selection technique selects an adequate set of axioms, then
 \emph{NNRa}$/$\emph{NSel}.
+If the selection technique selects an inadequate set, then $0.00$.
 This measures how precisely the technique chooses the ``best ones'' from
 the ranked list of axioms.
 Larger values are better.
@@ -265,12 +263,15 @@ be ranked highly, which in turn allows a smaller number to be selected if
 the ranking precision is good.
 Larger values are better.
 
+\paragraph{Average precision/selectivity/ranking precision/ranking density.}
+For a set of problems, the average over the problems.
+
 \paragraph{Adequacy.}
 For a set of problems, the adequacy is the fraction of problems for which
 the selection technique selects an adequate set of axioms.
 Larger values are better.
 
-\paragraph{Adequate precision/selectivity/ranking density/ranking efficiency.}
+\paragraph{Adequate precision/selectivity/ranking precision/ranking density.}
 For a set of problems, the average over the problems for which the selection 
 technique selects an adequate set of axioms.
 
@@ -518,34 +519,38 @@ more than the available computing resources for the full set)
 
 Tables~\ref{Results325} and ~\ref{Results2078} show the results, including
 a row for the base case in which all axioms are selected.
-The columns are the Precision (Pre), Selectivity (Sel), Ranking 
-precision (RPr), Ranking density (RDe), Adequacy (Ade and Ade\%),
-Adequate precision (APr), Adequate selectivity (ASe), Adequate
-ranking precision (ARPr), and Adequate ranking density (ARDe).
+The columns are the 
+Precision (Prcn, 
+Selectivity (Sely), 
+Ranking precision (RPrn), 
+Ranking density (RDen), 
+Adequacy (Adeq),
+Adequate precision (Prcn), Adequate selectivity (Sely), Adequate
+ranking precision (RPrn), and Adequate ranking density (RDen).
 
 \begin{table}[hbt]
 \begin{center}
-\begin{tabular}{|l|rrrr|rrrrr|}
+\begin{tabular}{|l|rrrr|r|rrrr|}
 \hline
-\multicolumn{10}{|c|}{Bushy Problems} \\
-System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe  & ARPr & ARDe \\
+Bushy problems  & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
+Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \\
 \hline
-Base          & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
-E 2.4         & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
-Vampire 4.4   & 0.32 & 0.80 &  -   &  -   & 0.80 & 0.39 & 0.84 &  -   &  -   \\
-Q$\infty$ cut & 0.43 & 0.54 & 0.62 & 0.52 & 0.74 & 0.58 & 0.61 & 0.84 & 0.71 \\
-Spectral cl.  & 0.24 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
-Greedy path   & 0.37 & 0.77 &  -   &  -   & 0.97 & 0.38 & 0.80 &  -   &  -   \\
+Base            & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
+E 2.4           & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
+Vampire 4.4     & 0.32 & 0.80 &  -   &  -   & 0.80 & 0.39 & 0.84 &  -   &  -   \\
+Q$\infty$ cut   & 0.43 & 0.54 & 0.62 & 0.52 & 0.74 & 0.58 & 0.61 & 0.84 & 0.71 \\
+Spectral cl.    & 0.24 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
+Greedy path     & 0.37 & 0.77 &  -   &  -   & 0.97 & 0.38 & 0.80 &  -   &  -   \\
 \hline
-\multicolumn{10}{|c|}{Chainy Problems} \\
-System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe & ARPr & ARDe \\
+Chainy problems & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
+Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \\
 \hline
-Base          & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
-E 2.4         & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
-Vampire 4.4   & 0.08 & 0.55 &  -   &  -   & 0.94 & 0.09 & 0.56 &  -   &  -   \\
-Q$\infty$ cut & 0.08 & 0.53 & 0.57 & 0.21 & 0.85 & 0.09 & 0.56 & 0.67 & 0.25 \\
-Spectral cl.  & 0.05 & 0.48 &  -   &  -   & 0.65 & 0.08 & 0.63 &  -   &  -   \\
-Greedy path   & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
+Base            & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
+E 2.4           & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
+Vampire 4.4     & 0.08 & 0.55 &  -   &  -   & 0.94 & 0.09 & 0.56 &  -   &  -   \\
+Q$\infty$ cut   & 0.08 & 0.53 & 0.57 & 0.21 & 0.85 & 0.09 & 0.56 & 0.67 & 0.25 \\
+Spectral cl.    & 0.05 & 0.48 &  -   &  -   & 0.65 & 0.08 & 0.63 &  -   &  -   \\
+Greedy path     & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
 \hline
 \end{tabular}
 \caption{Results for the 325 smaller problems}
@@ -555,23 +560,23 @@ Greedy path   & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
 
 \begin{table}[hbt]
 \begin{center}
-\begin{tabular}{|l|rrrr|rrrrr|}
+\begin{tabular}{|l|rrrr|r|rrrr|}
 \hline
-\multicolumn{10}{|c|}{Bushy Problems} \\
-System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe  & ARPr & ARDe \\
+Bushy problems  & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
+Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \\
 \hline
-Base          & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
-E 2.4         & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
-Vampire 4.4   & 0.21 & 0.69 &  -   &  -   & 0.58 & 0.36 & 0.76 &  -   &  -   \\
-Q$\infty$ cut & 0.33 & 0.54 & ???? & ???? & 0.69 & 0.48 & 0.59 & ???? & ???? \\
+Base            & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
+E 2.4           & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
+Vampire 4.4     & 0.21 & 0.69 &  -   &  -   & 0.58 & 0.36 & 0.76 &  -   &  -   \\
+Q$\infty$ cut   & 0.33 & 0.54 & 0.55 & 0.42 & 0.69 & 0.48 & 0.59 & 0.81 & 0.61 \\
 \hline
-\multicolumn{10}{|c|}{Chainy Problems} \\
-System        & Pre  & Sel  & RPr  & RDe  & Ade  & APr  & ASe & ARPr & ARDe \\
+Chainy problems & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
+Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \\
 \hline
-Base          & ???? & 1.00 &  -   &  -   & 1.00 & ???? & 1.00 &  -   &  -   \\
-E 2.4         & 0.02 & 0.98 &  -   &  -   & 1.00 & 0.02 & 0.98 &  -   &  -   \\
-Vampire 4.4   & 0.03 & 0.40 &  -   &  -   & 0.87 & 0.04 & 0.41 &  -   &  -   \\
-Q$\infty$ cut & 0.03 & 0.53 & ???? & ???? & 0.83 & 0.04 & 0.56 & ???? & ???? \\
+Base            & 0.02 & 1.00 &  -   &  -   & 1.00 & 0.02 & 1.00 &  -   &  -   \\
+E 2.4           & 0.02 & 0.98 &  -   &  -   & 1.00 & 0.02 & 0.98 &  -   &  -   \\
+Vampire 4.4     & 0.03 & 0.40 &  -   &  -   & 0.87 & 0.04 & 0.41 &  -   &  -   \\
+Q$\infty$ cut   & 0.03 & 0.53 & 0.46 & 0.07 & 0.83 & 0.04 & 0.56 & 0.56 & 0.08 \\
 \hline
 \end{tabular}
 \caption{Results for all 2078 problems}
