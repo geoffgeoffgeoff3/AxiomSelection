@@ -346,9 +346,12 @@ Let
 %      $occ_{t}^{+}(v)=\sum_{i=1}^{occ_{t}(v)}n_i+occ_{t}(v)$.
 \end{packed_itemize}
 \begin{align}
-S_v(\theta_i^v) &= \sum_{X_{i.j}\in V(\Delta)} log(W_v(Z_{i.j},\Delta_i) - W_v(X_{i.j},\Delta)) \\
+S_v(\theta_i^v) &= \sum_{X_{i,j}\in V(\Delta)} log(W_v(Z_{i,j},\Delta_i) - W_v(X_{i.j},\Delta)) \\
 S_f(\theta_i^f) &= \sum_{Y_{i,j}\in V(\Delta)} W_f(f_{i,j})
 \end{align}
+$S_v(\theta)$ is the sum of SOME FUNCTION of the difference between the
+weights of the substituting variables and the substituted variables.
+I NEED THE INTUITION.
 $S_f(\theta)$ is the sum of the weights of the substituting terms for every 
 substitution made in $\Delta$ by $\theta$.
 ARE VARIABLES IN THE SUBSTITUTING TERMS INCLUDED?
