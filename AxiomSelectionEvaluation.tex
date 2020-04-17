@@ -314,8 +314,7 @@ $\Delta'\sigma_2 = \Delta_2$.
 If $lgg(\Delta_1,\Delta_2)$ does not exist, e.g., neither are variables and 
 the principle symbols of $\Delta$ and $\Delta$ are different, then their 
 dissimilarity $dsim(\Delta_1,\Delta_2) = \infty$.
-Otherwise, divide $\theta_i$ into two parts, $\theta_i^v$ and
-$\theta_i^f$
+Otherwise, divide $\theta_i$ into two parts, $\theta_i^v$ and $\theta_i^f$:
 \begin{center}
 $\theta_i^v=\{X_{i,1}\mapsto Z_{i,1},\dots,X_{i,m_i}\mapsto Z_{i,m_i}\}$
 ~~~~
@@ -323,41 +322,41 @@ $\theta_i^f=\{Y_{i,1}\mapsto f_{i,1},\dots,Y_{i,n_i}\mapsto f_{i,n_i}\}$
 \end{center}
 where $X_{i,j}$ and $Y_{i,j}$ are the substituted variables, 
 $Z_{i,j}$ are substituting variables, and
-$f_1$,\dots,$f_n$ are substituting functional terms.
+$f_{i,j}$ are substituting functional terms.
 $S_f$ and $S_v$ are functions that map $\theta_i^v$ and 
-$\theta_i^f$ to real numbers:
-\begin{align}
-S_v(\theta_i^v) &=w_v\times\sum_{j=1}^{m}log(occ_{t_2}^{+}(Z_{j})-occ_{t_1}^{+}(X_{j})) \\
-S_f(\theta_i^f) &= \sum_{i=1}^{n}(occ_{t_1}(Y_i)\times\sum_{f\in F(u_i)}w(f)\times occ_{u_i}(f))
-\end{align}
-Where,
+$\theta_i^f$ to real numbers.
+Let
 \begin{packed_itemize}
-\item $w_v$ is a weight for variables (currently set to $1$, but it's 
+\item $w_v$ be a weight for variables (currently set to $1$, but it's 
       might be useful for fine tuning).
-\item $w_f$ is a weight function for non-variable symbols (currently
+\item $w_f$ be a weight function for non-variable symbols (currently
       set to $2$ for all symbols). 
-\item $F(t)$ denotes the set of all function symbols appearing in a term $t$.
-\item $occ_{t}(s)$ denotes the number of occurrences of a function or variable 
-      symbol $s$ in a term $t$.
-\item $occ_{t}^{+}(v)$ denotes the number of deep occurrences of a variable 
-      $v$ in a term $t$, which takes the depth of $v$ (the number of symbols 
-      nested $v$) into consideration. 
-      For every occurrence $i$ of $v$, the depth of $v$ is $n_i$ ($n_i\geq$ 0). 
-      $occ_{t}^{+}(v)=\sum_{i=1}^{occ_{t}(v)}n_i+occ_{t}(v)$.
+\item $V(\Phi)$ be the set of all variable occurences in $\Phi$.
+\item $N(X,\Phi)$ be the nesting level of $X$ in $\Phi$, e.g., 
+      $N(X,p(f(X)) = 2$.
+\item $W_v(X,\Phi)$ be $w_v + N(X,\Phi)$, i.e., the variable weight plus the
+      nesting level of $X$ in $\Phi$.
+\item $W_f(\Phi)$ be the sum of the weights of all the non-variable symbols 
+      occuring in $\Phi$.
+% \item $occ(t,\Phi)$ denote the number of occurrences of $t$ in $\Phi$.
+%\item $occ_{t}^{+}(v)$ denotes the number of deep occurrences of a variable 
+%      $v$ in a term $t$, which takes the depth of $v$ (the number of symbols 
+%      nested $v$) into consideration. 
+%      For every occurrence $i$ of $v$, the depth of $v$ is $n_i$ ($n_i\geq$ 0). 
+%      $occ_{t}^{+}(v)=\sum_{i=1}^{occ_{t}(v)}n_i+occ_{t}(v)$.
 \end{packed_itemize}
+\begin{align}
+S_v(\theta_i^v) &= \sum_{X_{i.j}\in V(\Delta)} log(W_v(Z_{i.j},\Delta_i) - W_v(X_{i.j},\Delta)) \\
+S_f(\theta_i^f) &= \sum_{Y_{i,j}\in V(\Delta)} W_f(f_{i,j})
+\end{align}
+$S_f(\theta)$ is the sum of the weights of the substituting terms for every 
+substitution made in $\Delta$ by $\theta$.
+ARE VARIABLES IN THE SUBSTITUTING TERMS INCLUDED?
+
 The dissimilarity between $\Delta_1$ and $\Delta_2$ is then:
 \begin{align}
 dsim(\Delta_1,\Delta_2) = \sqrt{[S_v(\theta_1^v)+S_v(\theta_2^v)]^2+[S_f(\theta_1^f)+S_f(\theta_2^f)]^2}
 \end{align}
-
-First-order formulas are the connection of atoms, logical connectives and 
-quantifiers. 
-Ignoring all the logical connectives and quantifiers, formulas are sets of 
-atoms. 
-The inference will not happen in such formulas, if all atoms in them are 
-incompatible. 
-We assert that the more incompatible atoms two formulas have, the less 
-similar the formulas are.
 
 Suppose that $\Phi_1$, $\Phi_2$ are two formulas. 
 Let $D_1=\{A_1, ..., A_n\}$ and $D_2=\{B_1, ..., B_m\}$, which denote the 
@@ -369,6 +368,15 @@ $diss(\Phi_1,\Phi_2)$ is:
 \begin{align}
 diss(\Phi_1,\Phi_2) = \frac{n\times m}{Penalty}\times \sum_{i=1}^n \sum_{j=1}^{m}d_A(A_i, B_j)
 \end{align}
+First-order formulas are the connection of atoms, logical connectives and 
+quantifiers. 
+Ignoring all the logical connectives and quantifiers, formulas are sets of 
+atoms. 
+The inference will not happen in such formulas, if all atoms in them are 
+incompatible. 
+We assert that the more incompatible atoms two formulas have, the less 
+similar the formulas are.
+
 
 For two formulae $\Phi_1$ and $\Phi_2$, their similarity $sim(\Phi_1,\Phi_2)$
 is defined in the context of a set of formulae $\mathcal{F}$, 
