@@ -10,6 +10,7 @@
 
 \usepackage{doc}
 \usepackage{float}
+\usepackage{amssymb}
 
 \newenvironment{packed_itemize}{
 \vspace*{-0.5em}
@@ -331,13 +332,21 @@ Let
       might be useful for fine tuning).
 \item $w_f$ be a weight function for non-variable symbols (currently
       set to $2$ for all symbols). 
-\item $V(\Phi)$ be the set of all variable occurences in $\Phi$.
+\item $V(X,\Phi)$ be the number of occurences of $X$ in $\Phi$.
 \item $N(X,\Phi)$ be the nesting level of $X$ in $\Phi$, e.g., 
       $N(X,p(f(X)) = 2$.
-\item $W_v(X,\Phi)$ be $w_v + N(X,\Phi)$, i.e., the variable weight plus the
-      nesting level of $X$ in $\Phi$.
+\item $W_v(X,\Phi)$ be $V(X,\Phi)$ plus the sum of $N(X,\Phi)$ over the 
+      occurrences of $X$ in $\Phi$, e.g., 
+      $W_v(X,p(X,f(X)) = 2 + (1+2) = 5$.
 \item $W_f(\Phi)$ be the sum of the weights of all the non-variable symbols 
       occuring in $\Phi$.
+\item $g(x)$ be a continuous increasing function 
+      $\mathbb{R} \mapsto \mathbb{R}$ such that 
+      $g(0)=0$
+      % $g(x)\geq0$ for $x \geq 0$, 
+      and
+      $g(x_1+x_2) \leq g(x_1)+ g(x_2)$ for $x_1, x_2\geq0$
+      (currently set to $ln(x+1)$).
 % \item $occ(t,\Phi)$ denote the number of occurrences of $t$ in $\Phi$.
 %\item $occ_{t}^{+}(v)$ denotes the number of deep occurrences of a variable 
 %      $v$ in a term $t$, which takes the depth of $v$ (the number of symbols 
@@ -346,20 +355,22 @@ Let
 %      $occ_{t}^{+}(v)=\sum_{i=1}^{occ_{t}(v)}n_i+occ_{t}(v)$.
 \end{packed_itemize}
 \begin{align}
-S_v(\theta_i^v) &= \sum_{X_{i,j}\in V(\Delta)} log(W_v(Z_{i,j},\Delta_i) - W_v(X_{i.j},\Delta)) \\
-S_f(\theta_i^f) &= \sum_{Y_{i,j}\in V(\Delta)} W_f(f_{i,j})
+S_v(\theta_i^v) &= \sum_{j=1}^{m_i} g(W_v(Z_{i,j},\Delta_i) - W_v(X_{i.j},\Delta)) \\
+S_f(\theta_i^f) &= \sum_{j=1}^{n_i} (V(Y_{i,j},\Delta) \times W_f(f_{i,j}))
 \end{align}
-$S_v(\theta)$ is the sum of SOME FUNCTION of the difference between the
-weights of the substituting variables and the substituted variables.
-I NEED THE INTUITION.
-$S_f(\theta)$ is the sum of the weights of the substituting terms for every 
-substitution made in $\Delta$ by $\theta$.
-ARE VARIABLES IN THE SUBSTITUTING TERMS INCLUDED?
+$S_v(\theta)$ measures the difference in the usage complexity between
+the substituting variables in $\Delta_i$ and the subsituted variables 
+in $\Delta$, over the subsitutions made in $\Delta$ by $\theta_i^v$.
+$S_f(\theta)$ measures the impact of the substituting terms over the 
+substitutions made in $\Delta$ by $\theta_i^f$.
 
-The dissimilarity between $\Delta_1$ and $\Delta_2$ is then:
+The dissimilarity between two atoms (or terms, but that is not of direct
+interest in this work) $\Delta_1$ and $\Delta_2$ is then:
 \begin{align}
 dsim(\Delta_1,\Delta_2) = \sqrt{[S_v(\theta_1^v)+S_v(\theta_2^v)]^2+[S_f(\theta_1^f)+S_f(\theta_2^f)]^2}
 \end{align}
+The dissimilarity between two atoms measures the combined ``effort'' 
+required to convert them into their least general generalization.
 
 Suppose that $\Phi_1$, $\Phi_2$ are two formulas. 
 Let $D_1=\{A_1, ..., A_n\}$ and $D_2=\{B_1, ..., B_m\}$, which denote the 
@@ -371,19 +382,13 @@ $diss(\Phi_1,\Phi_2)$ is:
 \begin{align}
 diss(\Phi_1,\Phi_2) = \frac{n\times m}{Penalty}\times \sum_{i=1}^n \sum_{j=1}^{m}d_A(A_i, B_j)
 \end{align}
-First-order formulas are the connection of atoms, logical connectives and 
-quantifiers. 
-Ignoring all the logical connectives and quantifiers, formulas are sets of 
-atoms. 
-The inference will not happen in such formulas, if all atoms in them are 
-incompatible. 
-We assert that the more incompatible atoms two formulas have, the less 
-similar the formulas are.
-
+The dissimilarity between two formulae measures the extent to which
+inference between them might not be possible by virtue of the dissimilarity
+of their atoms.
 
 For two formulae $\Phi_1$ and $\Phi_2$, their similarity $sim(\Phi_1,\Phi_2)$
 is defined in the context of a set of formulae $\mathcal{F}$, 
-$\Phi_i \in \mathcal{F}$:
+$\Phi_i1,\Phi_2 \in \mathcal{F}$:
 \begin{align}
 maxdiss(\mathcal{F}) &= max_{\phi_i,\phi_j \in \mathcal{F}} (diss(\phi_i,\phi_j) \neq \infty) \\
 sim(\Phi_1,\Phi_2,\mathcal{F}) &= \textrm{max}(0, maxdiss(\mathcal{F}) - diss(\Phi_1,\Phi_2))
