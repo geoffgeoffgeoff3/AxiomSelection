@@ -71,7 +71,7 @@ Geoff Sutcliffe\inst{2}
 
 % Institutes for affiliations are also joined by \and,
 \institute{
-  System Credibility Automatic Verification Engineering Lab of Sichuan Province, Southwest Jiaotong University, China, \email{qhliu@my.swjtu.edu.cn}
+  School of Information Science and Technology, Southwest Jiaotong University, China, \email{qhliu@my.swjtu.edu.cn}
 \and
    University of Miami, USA, \email{zishi@cs.miami.edu,zxw526@miami.edu,geoff@cs.miami.edu}
  }
@@ -224,9 +224,9 @@ Define the following measures:
 \item The \emph{n}umber of axioms \emph{sel}ected: \emph{NSel}.
 \item The \emph{n}umber of axioms \emph{n}eeded \emph{f}or a \emph{p}roof, 
       i.e., the number of axioms in an adequate set: \emph{NNfP}.
-\item In a ranked list of axioms, the number of axioms upto the lowest ranked
+\item In a ranked list of axioms, the number of axioms down to the lowest ranked
       axiom needed for a proof, i.e., the \emph{n}umber of axioms
-      needed from the \emph{ra}nking: \emph{NNRa}.
+      \emph{n}eeded from the \emph{ra}nking: \emph{NNRa}.
 \end{packed_itemize}
 
 The metrics are:
@@ -294,78 +294,61 @@ The individual new techniques are then described in
 Sections~\ref{QinghuaInf}~to~\ref{Zihao}.
 
 %------------------------------------------------------------------------------
-\subsection{The Symmetric Weighted-average Extended Hutchinson Distance}
+\subsection{Formula Dissimilarity and Similarity}
 \label{QinghuaDistance}
 
-Terms are the most basic structure in the first-order logic. 
-A reasonable term metric used for evaluating the term difference can guarantee 
-its extended atom and formula metrics perform well to some extent. 
-For two arbitrary terms $t_1$, $t_2$, suppose that there exists a substitution 
-$\theta$ such that $t_1\theta=t_2$, which reflects the changes from 
-$t_1$ to $t_2$. 
-In fact, not all two arbitrary terms exist a substitution, and it is thus 
-unrealistic to evaluate the term difference by substitutions directly. 
-To address the problem, we take the least general generalization $lgg$ of 
-terms as a medium to evaluate the term difference. 
-Besides, we also propose a way to evaluate the term functional and variable 
-difference separately.
+The relatedness between two formulae is computed first as a
+\emph{dissimilarity} between the two formulae, which is also later converted
+to a \emph{similarity}.
+The dissimilarity between two atoms is an extended version of the
+Hutchinson distance \cite{Hut97}.
 
-Let 
-$\theta=\{X_1\mapsto u_1, ..., X_n\mapsto u_n, Y_1\mapsto Z_1, ..., Y_m\mapsto Z_m\}$ 
-be an arbitrary substitution, where $u_1$, ..., $u_n$ are functional terms, 
-$Z_1$, ..., $Z_m$ are variables, and $X_1$, ..., $X_n$, $Y_1$, ..., $Y_m$ 
-are distinct variables. 
-functional substitution $\theta_f$ and variable substitution $\theta_v$ are 
-defined as:
-	\begin{center}
-		$\theta_{f}=\{X_1\mapsto u_1, ..., X_n\mapsto u_n\}$, \\
-		$\theta_{v}=\{Y_1\mapsto Z_1, ..., Y_m\mapsto Z_m\}$.
-	\end{center}
-	
-Obviously, $\theta_f\cap\theta_v =\emptyset$ and 
-$\theta_f\cup\theta_v = \theta$. 
-In some special cases, $\theta_f$ or $\theta_v$ may be empty substitution. 
-We then put forward two functions $S_f$ and $S_v$, mapping $\theta_f$ and 
-$\theta_v$ to real numbers, in which $S_f$ mainly considers the functional 
-difference while $S_v$ only takes the variable difference into account. 
-$S_f$, $S_v$ are defined as: 
-	\begin{align}
-		S_{f}(\theta_{f}) &= \sum_{i=1}^{n}occ_{t_1}(X_i)\times(\sum_{f\in F(u_i)}w(f)\times occ_{u_i}(f)); \\
-		S_{v}(\theta_{v}) &=\sum_{j=1}^{m}w_{0}\times(log(occ_{t_2}^{+}(Z_{j})-occ_{t_1}^{+}(Y_{j}))).
-	\end{align}
+For two terms or atoms $\Delta_1$ and $\Delta_2$, their \emph{least general 
+generalization} $\Delta = lgg(\Delta_1,\Delta_2)$, if it exists, is a term 
+or atom $\Delta$ such that there are substitutions $\theta_1$ and $\theta_2$, 
+$\Delta\theta_1 = \Delta_1$ and $\Delta\theta_2 = \Delta_2$, and 
+there is no term or atom $\Delta'$ and substitutions 
+$\sigma, \sigma_1, \sigma_2$ such that 
+$\Delta\sigma = \Delta'$, $\Delta'\sigma_1 = \Delta_1$, 
+$\Delta'\sigma_2 = \Delta_2$.
+If $lgg(\Delta_1,\Delta_2)$ does not exist, e.g., neither are variables and 
+the principle symbols of $\Delta$ and $\Delta$ are different, then their 
+dissimilarity $dsim(\Delta_1,\Delta_2) = \infty$.
+Otherwise, divide $\theta_i$ into two parts, $\theta_i^v$ and
+$\theta_i^f$
+\begin{center}
+$\theta_i^v=\{X_{i,1}\mapsto Z_{i,1},\dots,X_{i,m_i}\mapsto Z_{i,m_i}\}$
+~~~~
+$\theta_i^f=\{Y_{i,1}\mapsto f_{i,1},\dots,Y_{i,n_i}\mapsto f_{i,n_i}\}$
+\end{center}
+where $X_{i,j}$ and $Y_{i,j}$ are the substituted variables, 
+$Z_{i,j}$ are substituting variables, and
+$f_1$,\dots,$f_n$ are substituting functional terms.
+$S_f$ and $S_v$ are functions that map $\theta_i^v$ and 
+$\theta_i^f$ to real numbers:
+\begin{align}
+S_v(\theta_i^v) &=w_v\times\sum_{j=1}^{m}log(occ_{t_2}^{+}(Z_{j})-occ_{t_1}^{+}(X_{j})) \\
+S_f(\theta_i^f) &= \sum_{i=1}^{n}(occ_{t_1}(Y_i)\times\sum_{f\in F(u_i)}w(f)\times occ_{u_i}(f))
+\end{align}
 Where,
-\begin{itemize}
-\item $w$ is a weight function that maps every function symbol to a 
-      non-negative integer;
-\item $w_0$ ($w_0 > 0$) is a constant representing the weight for every 
-      variable;
-\item $F(t)$ denotes the set of all function symbols appearing in a term $t$;
+\begin{packed_itemize}
+\item $w_v$ is a weight for variables (currently set to $1$, but it's 
+      might be useful for fine tuning).
+\item $w_f$ is a weight function for non-variable symbols (currently
+      set to $2$ for all symbols). 
+\item $F(t)$ denotes the set of all function symbols appearing in a term $t$.
 \item $occ_{t}(s)$ denotes the number of occurrences of a function or variable 
-      symbol $s$ in a term $t$;
+      symbol $s$ in a term $t$.
 \item $occ_{t}^{+}(v)$ denotes the number of deep occurrences of a variable 
       $v$ in a term $t$, which takes the depth of $v$ (the number of symbols 
       nested $v$) into consideration. 
       For every occurrence $i$ of $v$, the depth of $v$ is $n_i$ ($n_i\geq$ 0). 
       $occ_{t}^{+}(v)=\sum_{i=1}^{occ_{t}(v)}n_i+occ_{t}(v)$.
-\end{itemize}
-
-Given two terms $t_1$ and $t_2$, $t$ is their the least general generalization 
-with substitutions $\theta_1$ and $\theta_2$, such that $t\theta_1=t_1$ and 
-$t\theta_2=t_2$. 
-Based on proposed functions, the term difference function $d_T$ between 
-$t_1$ and $t_2$ is defined as:
+\end{packed_itemize}
+The dissimilarity between $\Delta_1$ and $\Delta_2$ is then:
 \begin{align}
-	d_T(t_1, t_2) & = \sqrt{[S_f(\theta_{1_{f}})+S_f(\theta_{2_{f}})]^2+[S_v(\theta_{1_{v}})+S_v(\theta_{2_{v}})]^2}.
+dsim(\Delta_1,\Delta_2) = \sqrt{[S_v(\theta_1^v)+S_v(\theta_2^v)]^2+[S_f(\theta_1^f)+S_f(\theta_2^f)]^2}
 \end{align}
-
-Compatible atoms can also construct the most general generalization as terms 
-do in the same way, thus the $d_T$ can apply to them naturally. 
-As for incompatible atoms, we simply think their difference is extremely 
-huge due to they cannot be unified. Hence,
-\begin{itemize}
-	\item if $A_1$, $A_2$ are compatible atoms, $d_A(A_1,A_2)=d_T(A_1, A_2)$;
-	\item if $A_1$, $A_2$ are incompatible atoms, $d_A(A_1,A_2)=+\infty$.
-\end{itemize}
 
 First-order formulas are the connection of atoms, logical connectives and 
 quantifiers. 
@@ -376,54 +359,41 @@ incompatible.
 We assert that the more incompatible atoms two formulas have, the less 
 similar the formulas are.
 
-Suppose that $F_1$, $F_2$ are two formulas. 
+Suppose that $\Phi_1$, $\Phi_2$ are two formulas. 
 Let $D_1=\{A_1, ..., A_n\}$ and $D_2=\{B_1, ..., B_m\}$, which denote the 
 corresponding atom sets, respectively. 
-$Penatly=|\{d_A(A_i,B_j) | d_A(A_i,B_j)=(+\infty, +\infty)\}|$ is the number 
+$Penalty=|\{d_A(A_i,B_j) | d_A(A_i,B_j)=(+\infty, +\infty)\}|$ is the number 
 of incompatible atom pairs $(A_i,B_j)$ in formulas. 
-The formula difference function $d_F$ between $F_1$ and $F_2$ is defined as:
-	\begin{align}
-		d_F(F_1, F_2) = \frac{n\times m}{Pentaly}\times \sum_{i=1}^n \sum_{j=1}^{m}d_A(A_i, B_j)
-	\end{align}
-
-First, we converted a logic problem into a 
-fully-connected graph $G = (V, E)$, where each node $v_{i}$ represents a 
-logical formulae, and each edge $e_{ij}$ has weight $w'_{ij}$ representing 
-the dissimilarity between nodes $v_{i}$ and $v_{j}$. We devised the following 
-method to convert each dissimilarity weight $w'_{ij}$ into a similarity 
-weight $w_{ij}$:
+For two formulae $\Phi_1$ and $\Phi_2$, their dissimilarity 
+$diss(\Phi_1,\Phi_2)$ is:
 \begin{align}
-w_{ij} = \textrm{max}(0, 
-	\argmaxA_{w'_{ij} \subset W} (w'_{ij} \neq \infty) - w'_{ij})
+diss(\Phi_1,\Phi_2) = \frac{n\times m}{Penalty}\times \sum_{i=1}^n \sum_{j=1}^{m}d_A(A_i, B_j)
 \end{align}
 
-The conversion method consists of three cases:
-\begin{itemize}
-\item If the dissimilarity weight $w'_{ij}$ is equal to the largest 
-dissimilarity weight that is not infinity, or if $w'_{ij} = \infty$, then 
-our method will assign a similarity weight $w_{ij} = 0$ to the edge $e_{ij}$.
-
-\item If the dissimilarity weight $w'_{ij} = 0$, then our method will assign 
-a similarity weight equal to the largest dissimilarity weight that is not 
-infinity (i.e. $\argmaxA_{w'_{ij} \subset W} (w'_{ij} \neq \infty)$).
-
-\item Any dissimilarity weight $w'_{ij}$ between these two extremes will 
-yield a similarity weight $w_{ij}$ that is between 
-$0$ and $\argmaxA_{w'_{ij} \subset W} (w'_{ij})$.
-\end{itemize}
-
-We used the method to convert the dissimilarity matrix $W'$ into a similarity
-matrix $W$. 
+For two formulae $\Phi_1$ and $\Phi_2$, their similarity $sim(\Phi_1,\Phi_2)$
+is defined in the context of a set of formulae $\mathcal{F}$, 
+$\Phi_i \in \mathcal{F}$:
+\begin{align}
+maxdiss(\mathcal{F}) &= max_{\phi_i,\phi_j \in \mathcal{F}} (diss(\phi_i,\phi_j) \neq \infty) \\
+sim(\Phi_1,\Phi_2,\mathcal{F}) &= \textrm{max}(0, maxdiss(\mathcal{F}) - diss(\Phi_1,\Phi_2))
+\end{align}
+If the dissimilarity is $0$, then the similarity is the largest dissimilarity 
+that is not $\infty$.
+If the dissimilarity is greater than $0$ and not $\infty$, then the similarity 
+is the difference between the largest dissimilarity that is not $\infty$ and 
+the dissimilarity.
+If the dissimilarity is $\infty$ or is equal to the largest 
+dissimilarity that is not $\infty$, then the similarity is $0$.
 
 %------------------------------------------------------------------------------
-\subsection{Infinity Cut}
+\subsection{Q$\infty$ Cut}
 \label{QinghuaInf}
 
-Here, we design a simple conjecture-oriented axiom selection method called 
-$infinity$ $cut$, where formula difference function we proposed is used to 
-measure the difference between axioms and the given conjecture. 
-$infinity$ $cut$ only takes these axioms whose scores of the difference 
-to the conjecture are less than $+\infty$ into consideration.
+For a set of formulae consisting of a conjecture $\mathcal{C}$ and axioms 
+$\mathcal{A}$, this axiom selection technique selects all axioms $\Phi$
+such that $diss(\mathcal{C},\Phi) \neq \infty$.
+This simply means that each axiom contains at least one atom whose predicate
+symbol matches that of an atom in the conjecture.
 
 %------------------------------------------------------------------------------
 \subsection{A(nother) Machine Learning Approach}
