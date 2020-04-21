@@ -453,22 +453,12 @@ the final evaluation, based on the number of formulae in each problem.
 \label{fig:median-regression}
 \end{figure}
 
-The initial centriods for the clustering were chosen according to the degree 
-centrality of the axiom nodes in the graph, and additionally the conjecture 
-node was always chosen.
-
-Compute a feature matrix $X$ that summarizes the similarity between 
-      the nodes in $V$.
-The feature matrix $X$ consists of the eigenvectors of the normalized 
-graph Laplacian matrix. Von Luxburg \cite{vLu07} identifies two normalized 
-graph Laplacian matrices, $L_{sym}$ and $L_{rw}$, in the spectral clustering 
-literature. Both of these matrices can be computed from the edge weight matrix 
-$W$, but for our experiment we use $L_{sym}$.
-
-The rows of the feature matrix TO BE EXPLAINED corresponding to those
-nodes were then used as the initial centroids.
-Compute a feature matrix $X$ that summarizes the similarity between 
-      the nodes in $V$.
+The initial centriods for the clustering were extracted from a feature matrix 
+consisting of the eigenvectors of the $L_{sym}$ normalized graph Laplacian 
+matrix \cite{vLu07}, computed from the graph's adjacency matrix.
+The rows of the feature matrix corresponding to the conjecture node and to 
+the axiom nodes with highest degree centrality were used as the initial 
+centroids.
 
 %------------------------------------------------------------------------------
 \subsection{Greedy Tree +NN}
