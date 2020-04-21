@@ -443,6 +443,7 @@ A median regression line was fitted to this data (separately for the
 bushy and chainy problems), as shown in Figure~\ref{fig:median-regression}.
 The regression lines were then used to set the number of clusters for
 the final evaluation, based on the number of formulae in each problem.
+
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.42]{median-regression-optimal-k-bushy.png}
@@ -455,6 +456,15 @@ the final evaluation, based on the number of formulae in each problem.
 The initial centriods for the clustering were chosen according to the degree 
 centrality of the axiom nodes in the graph, and additionally the conjecture 
 node was always chosen.
+
+Compute a feature matrix $X$ that summarizes the similarity between 
+      the nodes in $V$.
+The feature matrix $X$ consists of the eigenvectors of the normalized 
+graph Laplacian matrix. Von Luxburg \cite{vLu07} identifies two normalized 
+graph Laplacian matrices, $L_{sym}$ and $L_{rw}$, in the spectral clustering 
+literature. Both of these matrices can be computed from the edge weight matrix 
+$W$, but for our experiment we use $L_{sym}$.
+
 The rows of the feature matrix TO BE EXPLAINED corresponding to those
 nodes were then used as the initial centroids.
 Compute a feature matrix $X$ that summarizes the similarity between 
