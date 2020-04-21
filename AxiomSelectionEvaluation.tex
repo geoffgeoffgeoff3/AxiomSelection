@@ -432,6 +432,12 @@ $v_{j} \in V$, the algorithm performs two procedures:
       nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
 \end{packed_enumerate}
 
+The feature matrix $X$ consists of the eigenvectors of the normalized 
+graph Laplacian matrix. Von Luxburg \cite{vLu07} identifies two normalized 
+graph Laplacian matrices, $L_{sym}$ and $L_{rw}$, in the spectral clustering 
+literature. Both of these matrices can be computed from the edge weight matrix 
+$W$, but for our experiment we use $L_{sym}$.
+
 We ran the spectral clustering algorithm on $W$.
 Let $K_{c}$ denote the cluster containing the conjecture, where 
 $1 \leq c \leq k$. 
