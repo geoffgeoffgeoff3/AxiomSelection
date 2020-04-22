@@ -375,19 +375,22 @@ atoms.
 Let $\Phi_1$ and $\Phi_2$ be two formulae, containing the atoms
 $\{\Delta_{1,1},\dots,\Delta_{1,n}\}$ and 
 $\{\Delta_{2,1},\dots,\Delta_{2,m}\}$ respectively.
-Let $N$ be the number of pairs $(\Delta_{1,i},\Delta_{2,j})$ for which
-$diss(\Delta_{1,i},\Delta_{2,j}) \neq \infty$.
-The dissimilarity between $\Phi_1$ and $\Phi_2$ is then:
+Let $Pairs_{\neq\infty}$ be the set of pairs $(\Delta_{1,i},\Delta_{2,j})$ 
+for which $diss(\Delta_{1,i},\Delta_{2,j}) \neq \infty$.
+If $|Pairs_{\neq\infty}| = \emptyset$ then the dissimilarity between
+between $\Phi_1$ and $\Phi_2$ is $diss(\Phi_1,\Phi_2) = \infty$.
+Otherwise:
 \begin{align}
 diss(\Phi_1,\Phi_2) = 
-\frac{\sum_{(\Delta_{1,i},\Delta_{2,j}) \neq \infty}diss(\Delta_{1,i},\Delta_{2,j})}{N}
+\frac{\sum_{Pairs_{\neq\infty}) \neq \infty}diss(\Delta_{1,i},\Delta_{2,j})}
+{|Pairs_{\neq\infty}|}
 \times
-\frac{n \times m}{N} 
+\frac{n \times m}{|Pairs_{\neq\infty}|} 
 \end{align}
-The first term is the average non-$infty$ dissimilarity between atoms in
-the two formulae. 
+The first term is the average dissimilarity between pairs of atoms that are 
+not infinitely dissimilar.
 The second term penalizes the first by the excess of atom pairs whose
-dissimilarity is $\infty$.
+dissimilarity is infinite.
 Intuitively, the dissimilarity between two formulae measures the extent 
 to which inference between them might not be possible by virtue of the 
 dissimilarity of their atoms.
