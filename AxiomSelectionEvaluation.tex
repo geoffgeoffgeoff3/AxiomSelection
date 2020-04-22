@@ -328,8 +328,7 @@ $S_f$ and $S_v$ are functions that map $\theta_i^v$ and
 $\theta_i^f$ to real numbers.
 Let
 \begin{packed_itemize}
-\item $w_v$ be a weight for variables (currently set to $1$, but it's 
-      might be useful for fine tuning).
+\item $w_v$ be a weight for variables (currently set to $1$).
 \item $w_f$ be a weight function for non-variable symbols (currently
       set to $2$ for all symbols). 
 \item $V(X,\Phi)$ be the number of occurences of $X$ in $\Phi$.
@@ -373,20 +372,25 @@ The dissimilarity between two atoms measures the combined substitution
 ``effort'' required to convert their least general generalization to those 
 atoms.
 
-Suppose that $\Phi_1$, $\Phi_2$ are two formulas.
-Let $D_1=\{A_1, ..., A_n\}$ and $D_2=\{B_1, ..., B_m\}$ be the
-sets of atoms occurring in them, respectively.
-$Non_{infinty}=\{(A_i,B_j) | d_A(A_i,B_j)\neq(+\infty, +\infty)\}$ is a set of
-incompatible atom pairs $(A_i,B_j)$ in formulas.
-For two formulae $\Phi_1$ and $\Phi_2$, their dissimilarity
-$diss(\Phi_1,\Phi_2)$ is:
+Let $\Phi_1$ and $\Phi_2$ be two formulae, containing the atoms
+$\{\Delta_{1,1},\dots,\Delta_{1,n}\}$ and 
+$\{\Delta_{2,1},\dots,\Delta_{2,m}\}$ respectively.
+Let $N$ be the number of pairs $(\Delta_{1,i},\Delta_{2,j})$ for which
+$diss(\Delta_{1,i},\Delta_{2,j}) \neq \infty$.
+The dissimilarity between $\Phi_1$ and $\Phi_2$ is then:
 \begin{align}
-diss(\Phi_1,\Phi_2) = \frac{n\times m}{|Non_{infinty}|\times
-|Non_{infinty}|}\times \sum_{(A_i, B_j)\in Non_{infinty}}d_A(A_i, B_j)
+diss(\Phi_1,\Phi_2) = 
+\frac{\sum_{(\Delta_{1,i},\Delta_{2,j}) \neq \infty}diss(\Delta_{1,i},\Delta_{2,j})}{N}
+\times
+\frac{n \times m}{N} 
 \end{align}
-The dissimilarity between two formulae measures the extent to which
-inference between them might not be possible by virtue of the dissimilarity
-of their atoms.
+The first term is the average non-$infty$ dissimilarity between atoms in
+the two formulae. 
+The second term penalizes the first by the excess of atom pairs whose
+dissimilarity is $\infty$.
+Intuitively, the dissimilarity between two formulae measures the extent 
+to which inference between them might not be possible by virtue of the 
+dissimilarity of their atoms.
 
 For two formulae $\Phi_1$ and $\Phi_2$, their similarity $sim(\Phi_1,\Phi_2)$
 is defined in the context of a set of formulae $\mathcal{F}$, 
