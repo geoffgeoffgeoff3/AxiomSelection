@@ -328,8 +328,7 @@ $S_f$ and $S_v$ are functions that map $\theta_i^v$ and
 $\theta_i^f$ to real numbers.
 Let
 \begin{packed_itemize}
-\item $w_v$ be a weight for variables (currently set to $1$, but it's 
-      might be useful for fine tuning).
+\item $w_v$ be a weight for variables (currently set to $1$).
 \item $w_f$ be a weight function for non-variable symbols (currently
       set to $2$ for all symbols). 
 \item $V(X,\Phi)$ be the number of occurences of $X$ in $\Phi$.
@@ -369,22 +368,32 @@ interest in this work) $\Delta_1$ and $\Delta_2$ is then:
 \begin{align}
 dsim(\Delta_1,\Delta_2) = \sqrt{[S_v(\theta_1^v)+S_v(\theta_2^v)]^2+[S_f(\theta_1^f)+S_f(\theta_2^f)]^2}
 \end{align}
-The dissimilarity between two atoms measures the combined ``effort'' 
-required to convert them into their least general generalization.
+The dissimilarity between two atoms measures the combined substitution
+``effort'' required to convert their least general generalization to those 
+atoms.
 
-Suppose that $\Phi_1$, $\Phi_2$ are two formulas. 
-Let $D_1=\{A_1, ..., A_n\}$ and $D_2=\{B_1, ..., B_m\}$, which denote the 
-corresponding atom sets, respectively. 
-$Penalty=|\{d_A(A_i,B_j) | d_A(A_i,B_j)=(+\infty, +\infty)\}|$ is the number 
-of incompatible atom pairs $(A_i,B_j)$ in formulas. 
-For two formulae $\Phi_1$ and $\Phi_2$, their dissimilarity 
-$diss(\Phi_1,\Phi_2)$ is:
+Let $\Phi_1$ and $\Phi_2$ be two formulae, containing the atoms
+$\{\Delta_{1,1},\dots,\Delta_{1,n}\}$ and 
+$\{\Delta_{2,1},\dots,\Delta_{2,m}\}$ respectively.
+Let $Pairs_{\neq\infty}$ be the set of pairs $(\Delta_{1,i},\Delta_{2,j})$ 
+for which $diss(\Delta_{1,i},\Delta_{2,j}) \neq \infty$.
+If $|Pairs_{\neq\infty}| = \emptyset$ then the dissimilarity between
+between $\Phi_1$ and $\Phi_2$ is $diss(\Phi_1,\Phi_2) = \infty$.
+Otherwise:
 \begin{align}
-diss(\Phi_1,\Phi_2) = \frac{n\times m}{Penalty}\times \sum_{i=1}^n \sum_{j=1}^{m}d_A(A_i, B_j)
+diss(\Phi_1,\Phi_2) = 
+\frac{\sum_{Pairs_{\neq\infty}) \neq \infty}diss(\Delta_{1,i},\Delta_{2,j})}
+{|Pairs_{\neq\infty}|}
+\times
+\frac{n \times m}{|Pairs_{\neq\infty}|} 
 \end{align}
-The dissimilarity between two formulae measures the extent to which
-inference between them might not be possible by virtue of the dissimilarity
-of their atoms.
+The first term is the average dissimilarity between pairs of atoms that are 
+not infinitely dissimilar.
+The second term penalizes the first by the excess of atom pairs whose
+dissimilarity is infinite.
+Intuitively, the dissimilarity between two formulae measures the extent 
+to which inference between them might not be possible by virtue of the 
+dissimilarity of their atoms.
 
 For two formulae $\Phi_1$ and $\Phi_2$, their similarity $sim(\Phi_1,\Phi_2)$
 is defined in the context of a set of formulae $\mathcal{F}$, 
@@ -402,7 +411,7 @@ If the dissimilarity is $\infty$ or is equal to the largest
 dissimilarity that is not $\infty$, then the similarity is $0$.
 
 %------------------------------------------------------------------------------
-\subsection{Q$\infty$ Cut}
+\subsection{Q$\infty$}
 \label{QinghuaInf}
 
 For a set of formulae consisting of a conjecture $\mathcal{C}$ and axioms 
@@ -417,79 +426,63 @@ symbol matches that of an atom in the conjecture.
 
 3. Qinghua's ML?
 %------------------------------------------------------------------------------
-\subsection{Spectral Clustering with Optimized k}
+\subsection{Spectral Clustering}
 \label{Zishi}
 
-Spectral clustering is an algorithm used in network science research to
-cluster together similar nodes in a graph \cite{vLu07}. 
-Given a graph $G = (V, E)$ with an edge weight matrix $W$ such that element
-$w_{ij}$ is a measure of similarity between nodes $v_{i} \in V$ and 
-$v_{j} \in V$, the algorithm performs two procedures:
-\begin{packed_enumerate}
-\item Compute a feature matrix $X$ that summarizes the similarity between 
-      the nodes in $V$.
-\item Applying k-means clustering \cite{} with $X$ as input to partition the 
-      nodes into $k$ clusters $K_{1}, K_{2}, ..., K_{k}$.
-\end{packed_enumerate}
+This axiom selection technique views the formulae of a problem as nodes
+of a complete graph, with the similarities between the formulae being the 
+edge weights.
+Spectral clustering \cite{vLu07} is then used to cluster together similar 
+nodes, and the axioms in the cluster containing the conjecture are selected.
+This process requires three steps:
+determining the number of clusters,
+choosing the initial centroids for the clusters,
+and
+applying k-means clustering.
 
-We ran the spectral clustering algorithm on $W$.
-Let $K_{c}$ denote the cluster containing the conjecture, where 
-$1 \leq c \leq k$. 
+To determine the number of clusters for a problem in the MPTP2078 corpus,
+this spectral clustering process was applied to each problem, with the 
+number of clusters ranging from two to half the number of formulae in the 
+problem.
+The precision was computed each time, and the best number of clusters
+recorded.
+A median regression line was fitted to this data (separately for the
+bushy and chainy problems), as shown in Figure~\ref{fig:median-regression}.
+The regression lines were then used to set the number of clusters for
+the final evaluation, based on the number of formulae in each problem.
 
-One drawback of the k-means algorithm is that it selects different initial 
-centroids each time, and therefore the resulting clusterings vary across 
-trials. To address this problem, we devised a way of choosing the initial 
-centroids in a deterministic manner:
-\begin{itemize}
-\item Rank the axioms by degree centrality and select the top $k-1$ axioms.
-\item Select the rows of $X$ corresponding to the feature vectors of the
-      selected $k-1$ axioms, and the row of $X$ corresponding to the feature 
-      vector of the conjecture. 
-      Use these $k$ feature vectors as the initial centroids of the k-means 
-      algorithm. 
-\end{itemize}
-
-Another drawback of the k-means algorithm is that we have no means of 
-calculating the optimal number of clusters $k$ beforehand and must therefore 
-derive it empirically. To this end, for a logic problem with $N$ logical 
-formulae, we tried all values of $k \in [2, N/2]$. We skipped the trivial 
-case of $k=1$ because if there is only one cluster, then it contains all the 
-axioms and must therefore contain a solution. For each problem, we iterated
-through all possible values of $k$ and for each value of $k$, we ran the
-spectral clustering algorithm and calculated two metrics: selectivity and 
-projection score. We recorded the value of $k$ that yielded the best 
-projection score for each problem, and denote that value of $k$ as 
-$k_{best}$. This method of axiom selection, which we call 
-\textbf{Spectral Clustering with all k's}, becomes computationally 
-expensive for large problems with more than a few hundred axioms.
-
-We devised a second method for axiom selection, called 
-\textbf{Spectral Clustering with predicted $\mathbf{k_{best}}$}, that uses 
-the data collected from the aforementioned process. First, we fitted two
-median regression lines, one for the Bushy problems and another for the 
-Chainy problems, onto the data of $k_{best}$ versus $N$. This gave us a 
-linear model to predict $k_{best}$ for a given problem containing $N$
-logical formulae, which we used to obtain for each problem a predicted
-$k_{best}$. Finally, we applied each predicted $k_{best}$ on the spectral
-clustering algorithm to obtain a selectivity metric and projection score
-metric for each problem. The median regression best fit lines are shown 
-below.
 \begin{figure}[H]
-	\centering
- 	\includegraphics[scale=0.42]{median-regression-optimal-k-bushy.png}
-	\includegraphics[scale=0.42]{median-regression-optimal-k-chainy.png}
-	\vspace{1mm}
-	\caption{ Median regression prediction line of $k_{best}$ as a function 
-	of the total number of axioms in a problem, for Bushy problems (left) 
-	and Chainy problems (right). }
-	\label{fig:median-regression}
+\centering
+\includegraphics[scale=0.42]{median-regression-optimal-k-bushy.png}
+\includegraphics[scale=0.42]{median-regression-optimal-k-chainy.png}
+\vspace{1mm}
+\caption{Best number of clusters vs. Number of formulae}
+\label{fig:median-regression}
 \end{figure}
 
+The initial centriods for the clustering were extracted from a feature matrix 
+consisting of the eigenvectors of the $L_{sym}$ normalized graph Laplacian 
+matrix \cite{vLu07}, computed from the graph's adjacency matrix.
+The rows of the feature matrix corresponding to the conjecture node and to 
+the axiom nodes with highest degree centrality were used as the initial 
+centroids.
+
 %------------------------------------------------------------------------------
-\subsection{Our Selection Techniques}
+\subsection{Greedy Tree +NN}
 \label{Zihao}
 
-4. Zihaos way
+As with the spectral clustering technique, this technique views the formulae
+and their similarities as a complete graph.
+Starting at the conjecture node, iteratively the edges to the most similar
+neighbours that have not already been visited are greedily followed until 
+nodes that have zero similarity (or equivalently, infinite dissimilarity) 
+to the conjecture area reached.
+These infinity dissimilar nodes are ignored.
+This forms a ``greedy tree'' of nodes.
+As a final step, all the unvisited nodes most similar to the nodes in the tree
+are added to the tree.
+The axiom nodes in the tree are selected.
+
 %------------------------------------------------------------------------------
 \section{Evaluation Results}
 \label{Results}
@@ -524,9 +517,9 @@ Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \
 Base            & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
 E 2.4           & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \\
 Vampire 4.4     & 0.32 & 0.80 &  -   &  -   & 0.80 & 0.39 & 0.84 &  -   &  -   \\
-Q$\infty$ cut   & 0.43 & 0.54 & 0.62 & 0.52 & 0.74 & 0.58 & 0.61 & 0.84 & 0.71 \\
-Spectral cl.    & 0.24 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
-Greedy path     & 0.37 & 0.77 &  -   &  -   & 0.97 & 0.38 & 0.80 &  -   &  -   \\
+Q$\infty$       & 0.43 & 0.54 & 0.62 & 0.52 & 0.74 & 0.58 & 0.61 & 0.84 & 0.71 \\
+Spectral Cl.    & 0.24 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
+Greedy tree +NN & 0.37 & 0.77 &  -   &  -   & 0.97 & 0.38 & 0.80 &  -   &  -   \\
 \hline
 Chainy problems & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
 Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \\
@@ -534,9 +527,9 @@ Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \
 Base            & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
 E 2.4           & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \\
 Vampire 4.4     & 0.08 & 0.55 &  -   &  -   & 0.94 & 0.09 & 0.56 &  -   &  -   \\
-Q$\infty$ cut   & 0.08 & 0.53 & 0.57 & 0.21 & 0.85 & 0.09 & 0.56 & 0.67 & 0.25 \\
-Spectral cl.    & 0.05 & 0.48 &  -   &  -   & 0.65 & 0.08 & 0.63 &  -   &  -   \\
-Greedy path     & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
+Q$\infty$       & 0.08 & 0.53 & 0.57 & 0.21 & 0.85 & 0.09 & 0.56 & 0.67 & 0.25 \\
+Spectral Cl.    & 0.05 & 0.48 &  -   &  -   & 0.65 & 0.08 & 0.63 &  -   &  -   \\
+Greedy tree +NN & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
 \hline
 \end{tabular}
 \caption{Results for the 325 smaller problems}
