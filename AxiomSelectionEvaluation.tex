@@ -162,7 +162,8 @@ This paper is structured as follows:
 Section~\ref{Metrics} describes the evaluation metrics.
 Section~\ref{Ours} describes a distance measure between formulae, and
 some new axiom selection techniques based on that measure.
-Section~\ref{Results} provides evaluation results.
+Section~\ref{Results} provides evaluation results, including an initial 
+evaluation of the metrics themselves.
 Section~\ref{Conclusion} concludes.
 
 %------------------------------------------------------------------------------
@@ -356,7 +357,7 @@ Let
       and the nesting levels of the occurrences of $X$ in $\Delta$, e.g., 
       $W_v(X,p(X,f(X)) = w_v \times (2 + (1+2)) = 5$.
 \item $W_f(\Delta)$ be the sum of the weights (using $w_f$) of the 
-      non-variable symbols occuring in $\Delta$.
+      non-variable symbols occurring in $\Delta$.
 \item $g(x)$ be a continuous increasing function 
       $\mathbb{R} \mapsto \mathbb{R}$ such that 
       $g(0)=0$
@@ -380,7 +381,7 @@ S_f(\theta_i^f) &= \sum_{j=1}^{n_i} (|V(Y_{i,j},\Delta)| \times W_f(f_{i,j}))
 \end{align}
 $S_v(\theta)$ measures the difference between the usage of substituting 
 variables in $\Delta_i$ and the usage of substituted variables 
-in $\Delta$, over the subsitutions made in $\Delta$ by $\theta_i^v$.
+in $\Delta$, over the substitutions made in $\Delta$ by $\theta_i^v$.
 $S_f(\theta)$ measures the total function symbol weight of the substituting 
 terms, over the substitutions made in $\Delta$ by $\theta_i^f$.
 The dissimilarity between two terms or atoms $\Delta_1$ and $\Delta_2$ is then:
@@ -459,7 +460,7 @@ choosing the initial centroids for the clusters,
 and
 applying k-means clustering.
 
-The initial centriods for the clustering are extracted from a feature matrix 
+The initial centroids for the clustering are extracted from a feature matrix 
 consisting of the eigenvectors of the $L_{sym}$ normalized graph Laplacian 
 matrix \cite{vLu07}, computed from the graph's adjacency matrix.
 The rows of the feature matrix corresponding to the conjecture node and to 
@@ -467,7 +468,7 @@ the $k-1$ (see below for how $k$ is computed) axiom nodes with highest degree
 centrality are used as the initial centroids for the clustering.
 
 To determine the number of clusters for a problem in the MPTP2078 corpus,
-the three step process was applied to each OF THE 325 PROBLEMS - CHECK
+the three step process was applied to each OF THE 325 PROBLEMS - NEW PLAN
 problem with the number of 
 clusters ranging from two to half the number of formulae in the problem.
 The precision was computed each time, and the best number of clusters
@@ -555,7 +556,7 @@ Base            & 0.35 & 1.00 &  -   &  -   & 1.00 & 0.35 & 1.00 &  -   &  -   \
 Vampire 4.4     & 0.32 & 0.80 &  -   &  -   & 0.80 & 0.39 & 0.84 &  -   &  -   \\
 Q$\infty$       & 0.43 & 0.54 & 0.62 & 0.52 & 0.74 & 0.58 & 0.61 & 0.84 & 0.71 \\
 Spectral Cl.    & 0.24 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
-Greedy tree +NN & 0.37 & 0.77 &  -   &  -   & 0.97 & 0.38 & 0.80 &  -   &  -   \\
+Greedy tree +NN & 0.36 & 0.57 &  -   &  -   & 0.66 & 0.36 & 0.79 &  -   &  -   \\
 \hline
 \hline
 325 Chainy problems & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
@@ -566,7 +567,7 @@ Base            & 0.06 & 1.00 &  -   &  -   & 1.00 & 0.06 & 1.00 &  -   &  -   \
 Vampire 4.4     & 0.08 & 0.55 &  -   &  -   & 0.94 & 0.09 & 0.56 &  -   &  -   \\
 Q$\infty$       & 0.08 & 0.53 & 0.57 & 0.21 & 0.85 & 0.09 & 0.56 & 0.67 & 0.25 \\
 Spectral Cl.    & 0.05 & 0.48 &  -   &  -   & 0.65 & 0.08 & 0.63 &  -   &  -   \\
-Greedy tree +NN & 0.05 & 0.93 &  -   &  -   & 0.96 & 0.05 & 0.96 &  -   &  -   \\
+Greedy tree +NN & 0.05 & 0.79 &  -   &  -   & 0.86 & 0.06 & 0.85 &  -   &  -   \\
 \hline
 \end{tabular}
 \caption{Results for the 325 smaller problems}
@@ -583,8 +584,9 @@ Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \
 \hline
 Base            & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
 % E 2.4           & 0.30 & 1.00 &  -   &  -   & 1.00 & 0.30 & 1.00 &  -   &  -   \\
-Vampire 4.4     & 0.21 & 0.69 &  -   &  -   & 0.58 & 0.36 & 0.76 &  -   &  -   \\
-Q$\infty$       & 0.33 & 0.54 & 0.55 & 0.42 & 0.69 & 0.48 & 0.59 & 0.81 & 0.61 \\
+Vampire 4.4     & 0.21 & 0.69 &  -   &  -   & 0.58 & 0.35 & 0.76 &  -   &  -   \\
+Q$\infty$       & 0.33 & 0.54 & 0.55 & 0.41 & 0.68 & 0.48 & 0.59 & 0.80 & 0.60 \\
+Spectral Cl.    & 0.13 & 0.29 &  -   &  -   & 0.29 & 0.44 & 0.54 &  -   &  -   \\
 \hline
 \hline
 1369 Chainy problems & \multicolumn{4}{|c|}{Average} & \multicolumn{5}{|c|}{Adequate} \\
@@ -593,10 +595,10 @@ Technique       & Prcn & Sely & RPrn & RDen & Adeq & Prcn & Sely & RPrn & RDen \
 Base            & 0.02 & 1.00 &  -   &  -   & 1.00 & 0.02 & 1.00 &  -   &  -   \\
 % E 2.4           & 0.02 & 0.98 &  -   &  -   & 1.00 & 0.02 & 0.98 &  -   &  -   \\
 Vampire 4.4     & 0.03 & 0.40 &  -   &  -   & 0.87 & 0.04 & 0.41 &  -   &  -   \\
-Q$\infty$       & 0.03 & 0.53 & 0.46 & 0.07 & 0.83 & 0.04 & 0.56 & 0.56 & 0.08 \\
+Q$\infty$       & 0.03 & 0.53 & 0.46 & 0.07 & 0.81 & 0.04 & 0.56 & 0.56 & 0.09 \\
 \hline
 \end{tabular}
-\caption{Results for all problems with known adquate axiom sets}
+\caption{Results for all problems with known adequate axiom sets}
 \label{Results2078}
 \end{center}
 \end{table}
@@ -609,27 +611,33 @@ precision, with Q$\infty$ having slightly higher selectivity, and Vampire
 better adequacy.
 For the 1551 bushy problems Q$\infty$ is again the top performer, here in
 terms of precision, selectivity, and adequacy.
-Fnally, for the 1369 chainy problems Q$\infty$ and Vampire again have the 
+Finally, for the 1369 chainy problems Q$\infty$ and Vampire again have the 
 highest precision, with Vampire having the best selectivity and adequacy.
+COMMENT ON SPECTRAL CLUSTERING, EITHER IT'S LOW BECAUSE OF MEDIAN REGRESSION
+ON SMALL PROBLEMS, OR FIXED.
 
-The raw precision values are dissappointingly low, especially for the
+The raw precision values are disappointingly low, especially for the
 chainy problems.
 For Q$\infty$ the ranking density is similarly low, so that even with perfect
 ranking precision the raw precision cannot be very good.
 The adequacy numbers have to be viewed carefully - it is easy to get an
 optimal adequacy, simply by selecting all axioms and thus having pessimal
 selectivity.
-It is interesting that the very simple Q$\infty$ technique performs 
+It is noteworthy that the very simple Q$\infty$ technique performs 
 as well as the mature (and more complex) Vampire selection technique.
+
+%------------------------------------------------------------------------------
+\subsection{Evaluating the Metrics}
+\label{EvaluationOfMetrics}
 
 As was noted in the introduction to this paper, while metrics such as
 those presented in this paper are useful for quick evaluation of axiom
 selection techniques, the ``proof is in the pudding''.
 The quality of the metrics needs to be established by comparing them with 
 eventual ATP system performance.
-An intial evaluation of the precision metric has been performed by using
-the Q$\infty$ axiom selection to produce reduced problems for the E ATP
-system, and looking at the performance of E on the resultant reduced problems.
+An initial evaluation of the precision metric has been performed by using
+the Vampire and Q$\infty$ axiom selections, and looking at the performance 
+of E on the resultant reduced problems.
 This was done for the 1551 bushy problems and 1369 chainy problems for
 which there are known adequate axiom sets, so that the precision could
 be computed.
@@ -638,39 +646,45 @@ computers with a dual-core Intel(R) Xeon(R) E5-2609 2.50GHz CPU,
 8GB memory, and running the CentOS Linux release 7.6.1810 operating system.
 The results are shown in Table~\ref{EvaluationOfMetrics}.
 
-For both the bushy and the chainy problems, the precision of the unsolved
-problems is much lower than for the solved problems, 0.08 vs. 0.49 for
-the bushy problems, and 0.01 vs. 0.05 for the chainy problems.
-The precision metric thus aligns correctly with the solvability
+In all four cases the precision of the unsolved problems is much lower than for 
+the solved problems - the precision metric aligns correctly with the solvability 
 of the reduced problems.
-The numbers of problems with precision 0 and 1 also align with the numbers
-of solutions:
-for the bushy problems there are 488 cases where the precision is 0, i.e., the
-problem was not expected to be solved, and only two cases where exactly an 
-adequate set of axioms was selected, but no proof could be found (because 
-the problem is still too hard for the time limit).
-There are (only) 63 problems for which exactly an adequate set of axioms 
-was selected and the problem was solved.
-This shows that the axiom selection does not need to be perfect in order to
-produce a solvable reduced problem.
-For the chainy problems there is less alignment, but it is still pleasing
-to see that there are 232 cases where the precision is 0.
-COMMENT, INCLUDING THAT Q$\infty$ does as well as Vampire (if it does).
+The numbers of problems with precision 0.00 and 1.00 also align with the numbers
+of solutions, with higher numbers of solved problems with precision 1.00, and
+higher numbers of unsolved problems with precision 0.00.
+Overall, these results indicate that the precision metric does correctly
+evaluate the quality of the axiom selection.
+
+The attentive reader might have noticed that there are some solved problems with
+precision 0.00, which is weird because the precision should be 0.00 only if the 
+selected axioms are not an adequate set (Section~\ref{TheMetrics}).
+This indicates that these experiments revealed some new adequate sets of axioms
+for some problems in the MPTP2078 corpus, and thus that some further pruney problems 
+need to be created.
 
 \begin{table}[hbt]
 \begin{center}
 \begin{tabular}{|l|rr|rr|rr|rr|}
 \hline
-                & \multicolumn{4}{|c|}{1551 Bushy problems} & \multicolumn{4}{|c|}{1369 Chainy problems} \\
-                & \multicolumn{2}{|c|}{Unsolved} & \multicolumn{2}{|c|}{Solved} & \multicolumn{2}{|c|}{Unsolved} & \multicolumn{2}{|c|}{Solved} \\
+1551 Bushy      & \multicolumn{4}{|c|}{Vampire selection} & \multicolumn{4}{|c|}{Q$\infty$ selection} \\
+problems        & \multicolumn{2}{|c|}{Solved} & \multicolumn{2}{|c|}{Unsolved} & \multicolumn{2}{|c|}{Solved} & \multicolumn{2}{|c|}{Unolved} \\
 \hline
-\# Problems     &  604 & (39\%) &  947 & (61\%) &  681 & (50\%) &  691 & (51\%) \\
-Avg Prcn        & 0.08 &        & 0.49 &        & 0.01 &        & 0.05 &        \\
-\# Prcn 0       &  488 & (81\%) &    0 & (~0\%) &  232 & (34\%) &    0 & (~0\%) \\
-\# Prcn 1       &    2 & (~0\%) &   63 & (~7\%) &    0 & (~0\%) &    0 & (~0\%) \\
+\# Problems     &  848 & (55\%) &  703 & (45\%) &  969 & (62\%) &  582 & (38\%) \\
+Avg Prcn        & 0.35 &        & 0.03 &        & 0.48 &        & 0.07 &        \\
+\# Prcn 0.00    &    5 & (~1\%) &  646 & (92\%) &    3 & (~0\%) &  487 & (84\%) \\
+\# Prcn 1.00    &    7 & (~1\%) &    0 & (~0\%) &   63 & (~7\%) &    0 & (~0\%) \\
+\hline
+\hline
+1369 Chainy     & \multicolumn{4}{|c|}{Vampire selection} & \multicolumn{4}{|c|}{Q$\infty$ selection} \\
+problems        & \multicolumn{2}{|c|}{Solved} & \multicolumn{2}{|c|}{Unsolved} & \multicolumn{2}{|c|}{Solved} & \multicolumn{2}{|c|}{Unolved} \\
+\hline
+\# Problems     &  901 & (66\%) &  468 & (34\%) &  812 & (59\%) &  557 & (41\%) \\
+Avg Prcn        & 0.04 &        & 0.02 &        & 0.04 &        & 0.01 &        \\
+\# Prcn 0.00    &   19 & (~2\%) &  159 & (34\%) &   11 & (~1\%) &  243 & (44\%) \\
+\# Prcn 1.00    &    0 & (~0\%) &    0 & (~0\%) &    0 & (~0\%) &    0 & (~0\%) \\
 \hline
 \end{tabular}
-\caption{Evaluation of Q$\infty$ wrt E}
+\caption{Evaluation of Vampire and Q$\infty$ axiom selection wrt E}
 \label{EvaluationOfMetrics}
 \end{center}
 \end{table}
@@ -688,9 +702,12 @@ Vampire ATP system have been presented.
 Future work includes a more comprehensive evaluation of the metrics, to
 confirm that the metrics do provide a meaningful evaluation of the axiom
 selection techniques.
+It will also be interesting to apply the metrics to the axiom selection
+techniques found in other ATP systems such as E, GKC \cite{Tam19},
+iProver \cite{Kor08}, Leo-III \cite{SB18}, and MaLARea.
+
 The results show that there is lots of room for further research and 
-improvement in axiom selection, and is thus another obvious topic for
-further research.
+improvement in axiom selection.
 One interesting possibility is pipelining axiom selection tools, so
 the first in the pipeline receives the original problem, it's output
 becomes the input to the second in the pipeline, and so on.
