@@ -101,9 +101,9 @@ defined as having {\em many functions and predicates, and many axioms of
 which only a few are required for the proof of a theorem}.
 One key to solving large theory problems is selecting a subset of the axioms
 that is adequate for finding a proof.
-This paper presents metrics for evaluating axiom selection techniques
-without having to run an ATP system on the problem formed from the selected
-axioms and the problem's conjecture.
+The main contribution of this paper is metrics for evaluating axiom selection 
+techniques without having to run an ATP system on the problem formed from 
+the selected axioms and the problem's conjecture.
 This paper additionally presents three new axiom selection techniques.
 The new techniques, and the axiom selection in the Vampire ATP 
 system, are evaluated using the metrics.
@@ -262,7 +262,7 @@ If the axiom selection technique selects an adequate set of axioms, i.e., a
 superset of one or more of the known minimally adequate sets of axioms, then:
 \begin{packed_itemize}
 \item If the minimum \emph{NUiP} $= 0$, and \emph{NSel}$ = 0$, then $1.00$
-\item Else the the minimum \emph{NUiP}$/$\emph{NSel} 
+\item Else the maximum \emph{NUiP}$/$\emph{NSel} 
 \end{packed_itemize}
 If the selection technique selects an inadequate set then the precision
 is $0.00$.
@@ -281,7 +281,7 @@ Smaller values are better, provided an adequate set of axioms is selected.
 If the axiom selection technique selects an adequate set of axioms, then:
 \begin{packed_itemize}
 \item If the minimum \emph{NUiP} $= 0$, and \emph{NSel}$ = 0$, then $1.00$
-\item Else the the minimum \emph{NNRa}$/$\emph{NSel}
+\item Else the maximum \emph{NNRa}$/$\emph{NSel}
 \end{packed_itemize}
 If the technique selects an inadequate set, then $0.00$.
 This measures how precisely the technique chooses the ``best ones'' from
@@ -364,9 +364,11 @@ Let
 \begin{packed_itemize}
 \item $w_v$ be a weight for variables (currently set to $1$\footnote{%
 The values of $1$ and $2$ for $w_v$ and $w_f$ were adopted from their use 
-in E's KBO.
+in E, place greater emphasis on non-variable substitutions, and are small 
+enough to avoid large dissimilarity values.
 The use of $ln(x+1)$ for $g(x)$ below was motivated by it's common
-adoption as a continuous increasing function.}),
+adoption as a continuous increasing function, to usefully dampen the
+impact of variable substututions on dissimilarity values.}),
 \item $w_f$ be a weight function for non-variable symbols (currently
       set to $2$ for all symbols),
 \item $V(X,\Delta)$ be the set of occurrences of the variable $X$ in $\Delta$,
