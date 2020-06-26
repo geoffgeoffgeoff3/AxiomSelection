@@ -138,16 +138,22 @@ Evaluation of axiom selection techniques is typically done by:
 \item Running an ATP system on the reduced problem formed from the selected 
       axioms and the problem's conjecture.
 \end{packed_enumerate}
-In the third step of this process, a proof indicates an adequate selection,
-and a countermodel indicates an inadequate selection. 
-However, a time limit is imposed on each ATP system run, and when experiments 
-are done on large corpora it is often necessary to impose a small time limit.
+In the third step of this process, a proof indicates an adequate selection
+(the quality of which can then be evaluated), and a countermodel indicates 
+an inadequate selection. 
+As the development of axiom selection techniques progresses, this approach 
+requires repeating steps 2 and 3 to evaluate progress.
+Evaluation needs to be done on large corpora, making this a time consuming 
+process.
+As a consequence, to move things along faster, it is often necessary to impose 
+a small time limit on each ATP system run.
 Time limits (and other practical forms of incompleteness) cause timeouts, and 
 a timeout in the third step provides no information - the selection might be 
 inadequate, or the selection might be adequate but the reduced problem is 
 too hard because too many (unnecessary) axioms were selected, or the time 
 limit is too small.
 The results are also influenced by the choice of ATP system.
+Overall, this process for evaluating axiom selection techniques is problematic.
 
 The main contribution of this paper is metrics for evaluating axiom selection 
 techniques without having to run an ATP system on the reduced problems.
