@@ -8,3 +8,4 @@
 *.tex.bak
 *.bib.bak
 *.fig
+*.pyc
