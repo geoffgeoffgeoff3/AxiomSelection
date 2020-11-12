@@ -1,0 +1,11 @@
+``Large theory'' problems in Automated Theorem Proving (ATP) have been
+defined as having many functions and predicates, and many axioms of
+which only a few are required for the proof of a theorem.
+One key to solving large theory problems is selecting a subset of the axioms
+that is adequate for finding a proof.
+The main contribution of this paper is metrics for evaluating axiom selection
+techniques without having to run an ATP system on the problem formed from
+the selected axioms and the problem's conjecture.
+This paper additionally presents three new axiom selection techniques.
+The new techniques, and the axiom selection in the Vampire ATP
+system, are evaluated using the metrics.
