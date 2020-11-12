@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2020)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: AxiomSelectionEvaluation.aux
+The style file: plain.bst
+Database file #1: Bibliography.bib
+You've used 26 entries,
+            2118 wiz_defined-function locations,
+            705 strings with 9034 characters,
+and the built_in function-call counts, 12096 in all, are:
+= -- 1179
+> -- 547
+< -- 35
++ -- 196
+- -- 170
+* -- 836
+:= -- 1833
+add.period$ -- 90
+call.type$ -- 26
+change.case$ -- 144
+chr.to.int$ -- 0
+cite$ -- 26
+duplicate$ -- 530
+empty$ -- 967
+format.name$ -- 170
+if$ -- 2764
+int.to.chr$ -- 0
+int.to.str$ -- 26
+missing$ -- 26
+newline$ -- 133
+num.names$ -- 88
+pop$ -- 150
+preamble$ -- 1
+purify$ -- 118
+quote$ -- 0
+skip$ -- 451
+stack$ -- 0
+substring$ -- 749
+swap$ -- 245
+text.length$ -- 35
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 104
+warning$ -- 0
+while$ -- 114
+width$ -- 28
+write$ -- 315
