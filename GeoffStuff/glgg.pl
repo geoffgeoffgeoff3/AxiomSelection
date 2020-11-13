@@ -107,6 +107,7 @@ declare_TPTP_operators:-
 %------------------------------------------------------------------------------
 :-consult('tptp2X.read').
 :-consult('tptp2X.syntax').
+:-consult('glgg-dijkstra.pl').
 %------------------------------------------------------------------------------
 %----Invert sign 
 tptp2X_invert_sign(++,--).
@@ -325,11 +326,29 @@ NextNestingLevel,ArgsLGG,ArgsCost1,ArgsCost2),
    LGG =.. [Symbol|ArgsLGG].
     
 %------------------------------------------------------------------------------
+%----Do equality with symmetry
+lgg_atom('$tptp_equal'(LHS1,RHS1),'$tptp_equal'(LHS2,RHS2),LGG,AtomCost1,
+AtomCost2,Cost):-
+    !,
+    lgg_list([LHS1,RHS1],[LHS2,RHS2],1,_,1,ArgsLGG1,ArgsCost11,ArgsCost21),
+    Cost1 is sqrt((ArgsCost11*ArgsCost11) + (ArgsCost21*ArgsCost21)),
+    lgg_list([LHS1,RHS1],[RHS2,LHS2],1,_,1,ArgsLGG2,ArgsCost12,ArgsCost22),
+    Cost2 is sqrt((ArgsCost12*ArgsCost12) + (ArgsCost22*ArgsCost22)),
+    (   Cost1 < Cost2
+    ->  (   LGG =.. ['$tptp_equal'|ArgsLGG1],
+            AtomCost1 = ArgsCost11,
+            AtomCost2 = ArgsCost21,
+            Cost = Cost1 )
+    ;   (   LGG =.. ['$tptp_equal'|ArgsLGG2],
+            AtomCost1 = ArgsCost12,
+            AtomCost2 = ArgsCost22,
+            Cost = Cost2 ) ).
+
 %----If they have an LGG, Pythagoras (go around the mountain)
 lgg_atom(Atom1,Atom2,LGG,AtomCost1,AtomCost2,Cost):-
     lgg_term(Atom1,Atom2,1,_,0,LGG,AtomCost1,AtomCost2),
     !,
-    Cost is sqrt(AtomCost1*AtomCost1 + AtomCost2*AtomCost2).
+    Cost is sqrt((AtomCost1*AtomCost1) + (AtomCost2*AtomCost2)).
 
 %----Otherwise sum of weights (climb the mountain)
 lgg_atom(Atom1,Atom2,none,AtomCost1,AtomCost2,Cost):-
@@ -379,7 +398,8 @@ hausdorff(AtomDistances,HausdorfDistance):-
     max_list([MaxMinDistance1,MaxMinDistance2],HausdorfDistance).
 %------------------------------------------------------------------------------
 %----Do all pairs of formulae
-lgg_annotated_formulae_distances([_],[]).
+lgg_annotated_formulae_distances([_],[]):-
+    !.
 
 lgg_annotated_formulae_distances([AnnotatedFormula1,AnnotatedFormula2|
 RestOfFormulae],[Name1-Name2-->Distance|RestOfDistances]):-
@@ -388,6 +408,7 @@ RestOfFormulae],[Name1-Name2-->Distance|RestOfDistances]):-
     extract_atoms_from_formulae([AnnotatedFormula1],_,_,no,Atoms1),
     extract_atoms_from_formulae([AnnotatedFormula2],_,_,no,Atoms2),
     lgg_atoms_distances(Atoms1,Atoms2,AtomDistances),
+%DEBUG write('AtomDistances '),write(AtomDistances),nl,
     hausdorff(AtomDistances,Distance),
     lgg_annotated_formulae_distances([AnnotatedFormula2|RestOfFormulae],
 RestOfDistances).
@@ -396,9 +417,68 @@ RestOfDistances).
 write_distances([]).
 
 write_distances([Name1-Name2-->Distance|Rest]):-
-    format(atom(Formatted),'~4f',[Distance]),
-    writef('%20l %20l %8r\n',[Name1,Name2,Formatted]),
+    pad_atom(Name1,right,20,' ',PaddedName1),
+    pad_atom(Name2,right,20,' ',PaddedName2),
+    pad_number(Distance,4,FormattedDistance),
+    pad_atom(FormattedDistance,left,8,' ',PaddedDistance),
+    write(PaddedName1),write(' '),
+    write(PaddedName2),write(' '),
+    write(PaddedDistance),nl,
     write_distances(Rest).
+%------------------------------------------------------------------------------
+pad_number(DecimalNumber,DecimalPlaces,FormattedNumber):-
+    atom_chars(DecimalNumber,NumberChars),
+    append(IntegerPartChars,['.'|FractionalPartChars],NumberChars),
+    !,
+    atom_chars(FractionalPart,FractionalPartChars),
+    pad_number_fractional_part(FractionalPart,DecimalPlaces,
+PaddedFractionalPart),
+    atom_chars(IntegerPart,IntegerPartChars),
+    atomic_list_concat([IntegerPart,'.',PaddedFractionalPart],
+FormattedNumber).
+
+pad_number(IntegerNumber,DecimalPlaces,FormattedNumber):-
+    pad_number_fractional_part('',DecimalPlaces,Zeros),
+    atomic_list_concat([IntegerNumber,'.',Zeros],FormattedNumber).
+
+%------------------------------------------------------------------------------
+pad_number_fractional_part(FractionalPart,DecimalPlaces,PaddedFractionalPart):-
+    atom_length(FractionalPart,FractionalPartLength),
+    FractionalPartLength =< DecimalPlaces,
+    !,
+    ZerosNeeded is DecimalPlaces - FractionalPartLength,
+    pad_atom(FractionalPart,right,ZerosNeeded,'0',PaddedFractionalPart).
+
+pad_number_fractional_part(FractionalPart,DecimalPlaces,PaddedFractionalPart):-
+    length(LengthList,DecimalPlaces),
+    atom_chars(FractionalPart,FractionalPartChars),
+    append(LengthList,_,FractionalPartChars),
+    atom_chars(PaddedFractionalPart,LengthList).
+
+%------------------------------------------------------------------------------
+pad_atom(Atom,_,Size,_,Atom):-
+    atom_length(Atom,AtomLength),
+    AtomLength >= Size,
+    !.
+
+pad_atom(Atom,Side,Size,Character,PaddedAtom):-
+    atom_length(Atom,AtomLength),
+    SpacesNeeded is Size - AtomLength,
+    space_atom(SpacesNeeded,Character,[],SpacesAtom),
+    (   Side == right
+    ->  atom_concat(Atom,SpacesAtom,PaddedAtom)
+    ;   atom_concat(SpacesAtom,Atom,PaddedAtom) ).
+
+%------------------------------------------------------------------------------
+space_atom(SpacesNeeded,_,ListOfSpaces,SpacesAtom):-
+    SpacesNeeded =< 0,
+    !,
+    atom_chars(SpacesAtom,ListOfSpaces).
+
+space_atom(SpacesNeeded,Character,ListSoFar,SpacesAtom):-
+    LessSpacesNeeded is SpacesNeeded - 1,
+    space_atom(LessSpacesNeeded,Character,[Character|ListSoFar],SpacesAtom).
+
 %------------------------------------------------------------------------------
 lgg_file_distances(TPTPFileName,Distances):-
     declare_TPTP_operators,

@@ -14,12 +14,12 @@ fof(pel55_2_2,axiom,
 fof(pel55_2_3,axiom,
     ( lives(charles) )).
 
-%% fof(pel55_3,axiom,
-%%     ( ! [X] :
-%%         ( lives(X)
-%%        => ( X = agatha
-%%           | X = butler
-%%           | X = charles ) ) )).
+fof(pel55_3,axiom,
+    ( ! [X] :
+        ( lives(X)
+       => ( X = agatha
+          | X = butler
+          | X = charles ) ) )).
 
 fof(pel55_4,axiom,
     ( ! [X,Y] :
@@ -36,10 +36,10 @@ fof(pel55_6,axiom,
         ( hates(agatha,X)
        => ~ hates(charles,X) ) )).
 
-%% fof(pel55_7,axiom,
-%%     ( ! [X] :
-%%         ( X != butler
-%%        => hates(agatha,X) ) )).
+fof(pel55_7,axiom,
+    ( ! [X] :
+        ( X != butler
+       => hates(agatha,X) ) )).
 
 fof(pel55_8,axiom,
     ( ! [X] :
@@ -55,8 +55,8 @@ fof(pel55_10,axiom,
     ( ! [X] :
       ? [Y] : ~ hates(X,Y) )).
 
-%% fof(pel55_11,axiom,
-%%     (  agatha != butler )).
+fof(pel55_11,axiom,
+    (  agatha != butler )).
 
 fof(pel55,conjecture,
     ( killed(agatha,agatha) )).
