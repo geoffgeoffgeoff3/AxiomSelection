@@ -2,53 +2,75 @@
 %----Dijkstra's algorithm, taken from Roman Bartak's page ...
 %----    http://kti.ms.mff.cuni.cz/~bartak/prolog/graphs.html
 %------------------------------------------------------------------------------
-% min_dist(+Graph,+Start,-MinDist)
-min_dist(Graph,Start,MinDist):-
-   dijkstra(Graph,[],[Start-0],MinDist).
-   
+% dijkstra(+Graph,+Start,-ShortestPaths)
+dijkstra(Graph,Start,ShortestPaths):-
+   do_dijkstra(Graph,[],[Start-0],ShortestPaths).
+
 %------------------------------------------------------------------------------
 % dijkstra(+Graph,+ClosedVertices,+OpenVertices,-Distances)
-dijkstra(_,MinDist,[],MinDist).
-dijkstra(Graph,Closed,Open,MinDist):-
-   choose_v(Open,V-D,RestOpen),
-   neighbourhood(Graph,V,NB),  % NB is a list of adjacent vertices+distance to V
-   diff(NB,Closed,NewNB),
-   merge(NewNB,RestOpen,D,NewOpen),
-   dijkstra(Graph,[V-D|Closed],NewOpen,MinDist).
-   
+do_dijkstra(_,ShortestPaths,[],ShortestPaths):-
+    !.
+
+do_dijkstra(Graph,Closed,Open,ShortestPaths):-
+   choose_open_closest(Open,V-D,RestOpen),
+   neighbourhood(Graph,V,Neighbours),  
+   list_difference(Neighbours,Closed,OpenNeighbours),
+   merge(OpenNeighbours,RestOpen,D,NewOpen),
+   do_dijkstra(Graph,[V-D|Closed],NewOpen,ShortestPaths).
+
+%------------------------------------------------------------------------------
+%----A list of adjacent vertices+distance to V
+neighbourhood(Graph,From,Neighbours):-
+    findall(To-Cost,
+        member(From-To-->Cost,Graph),
+        RHSNeighbours),
+    findall(To-Cost,
+        member(To-From-->Cost,Graph),
+        LHSNeighbours),
+    append(RHSNeighbours,LHSNeighbours,Neighbours).
+
 %------------------------------------------------------------------------------
 % choose_v(+OpenVertices,-VertexToExpand,-RestOpenVertices)
-choose_v([H|T],MinV,Rest):-
+choose_open_closest([H|T],MinV,Rest):-
    choose_minv(T,H,MinV,Rest).
+
 choose_minv([],MinV,MinV,[]).
-choose_minv([H|T],M,MinV,[H2|Rest]):-
-   H=V1-D1, M=V-D,
-   (D1<D -> NextM=H,H2=M
-          ; NextM=M,H2=H),
+
+choose_minv([V1-D1|T],V-D,MinV,[H2|Rest]):-
+   (   D1 < D 
+   ->  (   NextM = (V1-D1),
+           H2 = (V-D) )
+   ;   (   NextM = (V-D),
+           H2 = (V1-D1) ) ),
    choose_minv(T,NextM,MinV,Rest).
-   
+
 %------------------------------------------------------------------------------
-% diff(+ListOfVertices,+Closed,-ListOfNonClosedVertices)
-diff([],_,[]).
-diff([H|T],Closed,L):-
-   H=V-D,
-   (member(V-_,Closed) -> L=NewT ; L=[H|NewT]),
-   diff(T,Closed,NewT).
-   
+%----list_difference(+ListOfVertices,+Closed,-ListOfNonClosedVertices)
+list_difference([],_,[]).
+
+list_difference([(V-D)|T],Closed,L):-
+   (   member(V-_,Closed) 
+   ->  L=NewT 
+   ;   L=[(V-D)|NewT] ),
+   list_difference(T,Closed,NewT).
+
 %------------------------------------------------------------------------------
 % merge(+ListOfVertices,+OldOpenVertices,-AllOpenVertices)
 merge([],L,_,L).
+
 merge([V1-D1|T],Open,D,NewOpen):-
-   (remove(Open,V1-D2,RestOpen)
-      -> VD is min(D2,D+D1)
-       ; RestOpen=Open,VD is D+D1),
-   NewOpen=[V1-VD|SubOpen],
+   (   remove(Open,V1-D2,RestOpen)
+   ->  VD is min(D2,D+D1)
+   ;   (   RestOpen = Open,
+           VD is D+D1 ) ),
+   NewOpen = [(V1-VD)|SubOpen],
    merge(T,RestOpen,D,SubOpen).
-   
+
 %------------------------------------------------------------------------------
-remove([H|T],H,T).
+remove([H|T],H,T):-
+    !.
+
 remove([H|T],X,[H|NT]):-
-   H\=X,
    remove(T,X,NT).
 
 %------------------------------------------------------------------------------

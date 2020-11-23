@@ -1,16 +1,16 @@
 %------------------------------------------------------------------------------
-prolog_dialect(swi).                    %%swi
-:-op(0,yfx,xor).                        %%swi
-:-use_module(library(random)).          %%swi
-:-use_module(library(lists)).          %%swi
+prolog_dialect(swi).
+:-op(0,yfx,xor).
+:-use_module(library(random)).
+:-use_module(library(lists)).
 tptp_directory('/home/tptp/TPTP').
 %------------------------------------------------------------------------------
-%----These are used in the TPTP and need to exist before the 
-%----transformations and formats are loaded. They are also declared at 
+%----These are used in the TPTP and need to exist before the
+%----transformations and formats are loaded. They are also declared at
 %----runtime in tptp2X/4.
 :-op(70,fx,'$$').
 :-op(80,fx,'$').
-:-op(85,fx,'&').    %----DLF dereference 
+:-op(85,fx,'&').    %----DLF dereference
 :-op(90,xfx,/).     %----Rationals need to bind tighter than =
 :-op(100,fx,++).
 :-op(100,fx,--).
@@ -40,7 +40,7 @@ tptp_directory('/home/tptp/TPTP').
 :-op(403,yfx,'<+>'). %----DLF disjoint union
 %----= must bind more tightly than : for ! [X] : a = X. = must binder looser
 %----than quantifiers for otherwise X = ! [Y] : ... is a syntax error (the =
-%----grabs the quantifier). That means for THF it is necessary to bracket 
+%----grabs the quantifier). That means for THF it is necessary to bracket
 %----formula terms, e.g., a = (! [X] : p(X))
 :-op(405,xfx,'=').
 %---!= not possible because ! is special - see postfix cheat :-op(405,xfx,'!=').
@@ -108,8 +108,9 @@ declare_TPTP_operators:-
 :-consult('tptp2X.read').
 :-consult('tptp2X.syntax').
 :-consult('glgg-dijkstra.pl').
+:-consult('glgg-utilities.pl').
 %------------------------------------------------------------------------------
-%----Invert sign 
+%----Invert sign
 tptp2X_invert_sign(++,--).
 
 tptp2X_invert_sign(--,++).
@@ -236,125 +237,213 @@ weight([Head|Rest],NestingLevel,Weight):-
 weight(Atom,0,3):-
     atom(Atom),
     !.
-    
+
 weight(Atom,NestingLevel,2):-
     atom(Atom),
     NestingLevel > 0,
     !.
-    
+
 weight(NonAtom,NestingLevel,Weight):-
-    NonAtom =.. [Symbol|Terms],
+    NonAtom =.. [Symbol|TermArgs],
     weight(Symbol,NestingLevel,SymbolWeight),
     NextNestingLevel is NestingLevel + 1,
-    weight(Terms,NextNestingLevel,TermsWeight),
-    Weight is SymbolWeight + TermsWeight.
+    weight(TermArgs,NextNestingLevel,TermArgsWeight),
+    Weight is SymbolWeight + TermArgsWeight.
 
 %------------------------------------------------------------------------------
-lgg_list([],[],SymbolIndex,SymbolIndex,_NestingLevel,[],0,0):-
+lgg_list([],[],_NestingLevel,[],0,0,0):-
     !.
 
-lgg_list([Term1|Rest1],[Term2|Rest2],SymbolIndex,NextSymbolIndex,NestingLevel,
-[LGG|LGGRest],Cost1,Cost2):-
-    lgg_term(Term1,Term2,SymbolIndex,TermSymbolIndex,NestingLevel,
-LGG,TermCost1,TermCost2),
-    lgg_list(Rest1,Rest2,TermSymbolIndex,NextSymbolIndex,NestingLevel,
-LGGRest,RestCost1,RestCost2),
+lgg_list([Term1|Rest1],[Term2|Rest2],NestingLevel,[LGG|LGGRest],
+Cost1,Cost2,TotalCost):-
+    lgg_term(Term1,Term2,NestingLevel,LGG,TermCost1,TermCost2,TermTotalCost),
+    lgg_list(Rest1,Rest2,NestingLevel,LGGRest,RestCost1,RestCost2,
+RestTotalCost),
     Cost1 is TermCost1 + RestCost1,
-    Cost2 is TermCost2 + RestCost2.
+    Cost2 is TermCost2 + RestCost2,
+    TotalCost is TermTotalCost + RestTotalCost.
 %------------------------------------------------------------------------------
-lgg_term(Term1,Term2,SymbolIndex,SymbolIndex,_NestingLevel,Term1,0,0):-
+lgg_term_with_lgg(Term1,Term2,_NestingLevel,Term1,0,0,0):-
     Term1 == Term2,
     !.
 
-lgg_term(Var1,Var2,SymbolIndex,SymbolIndex,NestingLevel,Var1,0,Weight2):-
+lgg_term_with_lgg(Var1,Var2,NestingLevel,Var1,0,Weight2,Weight2):-
     var(Var1),
     var(Var2),
     !,
     Var1 = Var2,
     weight(Var2,NestingLevel,Weight2).
-    
-lgg_term(Var,NonVar,SymbolIndex,SymbolIndex,NestingLevel,Var,0,Weight):-
+
+lgg_term_with_lgg(Var,NonVar,NestingLevel,Var,0,Weight,Weight):-
     var(Var),
     nonvar(NonVar),
     !,
     weight(NonVar,NestingLevel,Weight).
-    
-lgg_term(NonVar,Var,SymbolIndex,SymbolIndex,NestingLevel,Var,Weight,0):-
+
+lgg_term_with_lgg(NonVar,Var,NestingLevel,Var,Weight,0,Weight):-
     var(Var),
     nonvar(NonVar),
     !,
     weight(NonVar,NestingLevel,Weight).
-    
-%----Two constants -  variable LGG
-lgg_term(Term1,Term2,SymbolIndex,SymbolIndex,NestingLevel,
-_NewVar,Cost1,Cost2):-
-   Term1 =.. [Term1],
-   Term2 =.. [Term2],
+
+%------------------------------------------------------------------------------
+%----Two non-variable terms without matching symbols and arities - variable LGG
+%----and cost is sum (climb the mountain)
+lgg_term_without_lgg(Term1,Term2,NestingLevel,_Var,Cost1,Cost2,TotalCost):-
+   nonvar(Term1),
+   nonvar(Term2),
+   functor(Term1,Name1,Arity1),
+   functor(Term2,Name2,Arity2),
+   (  Name1 \== Name2
+   ;  Arity1 \== Arity2 ),
    !,
    weight(Term1,NestingLevel,Cost1),
-   weight(Term2,NestingLevel,Cost2).
+   weight(Term2,NestingLevel,Cost2),
+   TotalCost is Cost1 + Cost2.
 
-%----Same principal symbols and aritys - cost of args
-lgg_term(Term1,Term2,SymbolIndex,NextSymbolIndex,NestingLevel,
-LGG,ArgsCost1,ArgsCost2):-
+%------------------------------------------------------------------------------
+lgg_term(Term1,Term2,NestingLevel,LGG,Cost1,Cost2,TotalCost):-
+    lgg_term_with_lgg(Term1,Term2,NestingLevel,LGG,Cost1,Cost2,TotalCost),
+    !.
+
+%----Same principal symbols and aritys - Euclidian cost of terms (walk around
+%----the mountain).
+lgg_term(Term1,Term2,NestingLevel,LGG,ArgsCost1,ArgsCost2,TotalCost):-
    Term1 =.. [Symbol|TermArgs1],
    Term2 =.. [Symbol|TermArgs2],
    length(TermArgs1,Arity),
    length(TermArgs2,Arity),
    !,
    NextNestingLevel is NestingLevel + 1,
-   lgg_list(TermArgs1,TermArgs2,SymbolIndex,NextSymbolIndex,NextNestingLevel,
-ArgsLGG,ArgsCost1,ArgsCost2),
-   LGG =.. [Symbol|ArgsLGG].
-    
-lgg_term(Term1,Term2,SymbolIndex,NextSymbolIndex,NestingLevel,
-LGG,Cost1,Cost2):-
-   Term1 =.. [Symbol1|TermArgs1],
-   Term2 =.. [Symbol2|TermArgs2],
-   length(TermArgs1,Arity),
-   length(TermArgs2,Arity),
+   lgg_list(TermArgs1,TermArgs2,NextNestingLevel,ArgsLGG,ArgsCost1,ArgsCost2,
+_ArgsTotalCost),
+   LGG =.. [Symbol|ArgsLGG],
+%----Don't charge the ArgsTotlaCost (which is a sum), give discount for same
+%----principal symbol. As the principal symbols match, the term's costs are 
+%----just their arg's costs.
+   TotalCost is sqrt((ArgsCost1*ArgsCost1) + (ArgsCost2*ArgsCost2)).
+
+%% lgg_term(Term1,Term2,NestingLevel,
+%% LGG,Cost1,Cost2,TotalCost):-
+%%    Term1 =.. [Symbol1|TermArgs1],
+%%    Term2 =.. [Symbol2|TermArgs2],
+%%    length(TermArgs1,Arity),
+%%    length(TermArgs2,Arity),
+%%    !,
+%%    atom_concat('A',SymbolIndex,Symbol),
+%%    ListSymbolIndex is SymbolIndex + 1,
+%%    NextNestingLevel is NestingLevel + 1,
+%%    lgg_list(TermArgs1,TermArgs2,
+%% NextNestingLevel,ArgsLGG,ArgsCost1,ArgsCost2),
+%%    weight(Symbol1,NestingLevel,SymbolCost1),
+%%    Cost1 is ArgsCost1 + SymbolCost1,
+%%    weight(Symbol2,NestingLevel,SymbolCost2),
+%%    Cost2 is ArgsCost2 + SymbolCost2,
+%%    LGG =.. [Symbol|ArgsLGG].
+
+lgg_term(Term1,Term2,NestingLevel,LGG,Cost1,Cost2,TotalCost):-
    !,
-   atom_concat('A',SymbolIndex,Symbol),
-   ListSymbolIndex is SymbolIndex + 1,
-   NextNestingLevel is NestingLevel + 1,
-   lgg_list(TermArgs1,TermArgs2,ListSymbolIndex,NextSymbolIndex,
-NextNestingLevel,ArgsLGG,ArgsCost1,ArgsCost2),
-   weight(Symbol1,NestingLevel,SymbolCost1),
-   Cost1 is ArgsCost1 + SymbolCost1,
-   weight(Symbol2,NestingLevel,SymbolCost2),
-   Cost2 is ArgsCost2 + SymbolCost2,
-   LGG =.. [Symbol|ArgsLGG].
-    
+   lgg_term_without_lgg(Term1,Term2,NestingLevel,LGG,Cost1,Cost2,TotalCost).
 %------------------------------------------------------------------------------
-%----Do equality with symmetry
-lgg_atom('$tptp_equal'(LHS1,RHS1),'$tptp_equal'(LHS2,RHS2),LGG,AtomCost1,
-AtomCost2,Cost):-
-    !,
-    lgg_list([LHS1,RHS1],[LHS2,RHS2],1,_,1,ArgsLGG1,ArgsCost11,ArgsCost21),
-    Cost1 is sqrt((ArgsCost11*ArgsCost11) + (ArgsCost21*ArgsCost21)),
-    lgg_list([LHS1,RHS1],[RHS2,LHS2],1,_,1,ArgsLGG2,ArgsCost12,ArgsCost22),
-    Cost2 is sqrt((ArgsCost12*ArgsCost12) + (ArgsCost22*ArgsCost22)),
-    (   Cost1 < Cost2
-    ->  (   LGG =.. ['$tptp_equal'|ArgsLGG1],
-            AtomCost1 = ArgsCost11,
-            AtomCost2 = ArgsCost21,
-            Cost = Cost1 )
-    ;   (   LGG =.. ['$tptp_equal'|ArgsLGG2],
-            AtomCost1 = ArgsCost12,
-            AtomCost2 = ArgsCost22,
-            Cost = Cost2 ) ).
+%----This is called within findall, so do any
+%----Atom term is a var ... Lgg now and cut (or could fail because no 
+%----paramodulate into care)
+lgg_equality_term(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,EqualityCost,
+AtomCost,TotalCost):-
+    nonvar(AtomTerm),
+    \+ \+ EqualityTerm = AtomTerm,
+    lgg_term(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,
+EqualityCost,AtomCost,TotalCost).
 
-%----If they have an LGG, Pythagoras (go around the mountain)
-lgg_atom(Atom1,Atom2,LGG,AtomCost1,AtomCost2,Cost):-
-    lgg_term(Atom1,Atom2,1,_,0,LGG,AtomCost1,AtomCost2),
+%----Atom term is a list ... do all members
+lgg_equality_term(_EqualityTerm,[],_NestingLevel,_LGGTerms,_EqualityCost,
+_AtomCost,_TotalCost):-
     !,
-    Cost is sqrt((AtomCost1*AtomCost1) + (AtomCost2*AtomCost2)).
+    fail.
 
-%----Otherwise sum of weights (climb the mountain)
-lgg_atom(Atom1,Atom2,none,AtomCost1,AtomCost2,Cost):-
-   weight(Atom1,0,AtomCost1),
-   weight(Atom2,0,AtomCost2),
-   Cost is AtomCost1 + AtomCost2.
+lgg_equality_term(EqualityTerm,[HeadTerm|TailTerms],NestingLevel,LGGTerms,
+EqualityCost,AtomCost,TotalCost):-
+    !,
+    append(PrefixAtomTerms,[AtomTerm|RestAtomTerms],[HeadTerm|TailTerms]),
+    lgg_equality_term(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,
+EqualityCost,AtomCost,TotalCost),
+    append(PrefixAtomTerms,[LGGTerm|RestAtomTerms],LGGTerms).
+
+%----Atom term is nonvar ... Lgg now or lgg without or do terms parts
+% lgg_equality_term(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,EqualityCost,
+% AtomCost,TotalCost):-
+%     nonvar(AtomTerm),
+%     lgg_term_with_lgg(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,
+% EqualityCost,AtomCost,TotalCost).
+
+% lgg_equality_term(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,EqualityCost,
+% AtomCost,TotalCost):-
+%     nonvar(AtomTerm),
+%     lgg_term_without_lgg(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,
+% EqualityCost,AtomCost,TotalCost).
+
+lgg_equality_term(EqualityTerm,AtomTerm,NestingLevel,LGGTerm,EqualityCost,
+AtomCost,TotalCost):-
+    nonvar(AtomTerm),
+    AtomTerm =.. [Symbol|ArgTerms],
+    lgg_equality_term(EqualityTerm,ArgTerms,NestingLevel,ArgLGGs,EqualityCost,
+AtomCost,TotalCost),
+    LGGTerm =.. [Symbol|ArgLGGs].
+
+% Must deal with case of equality and proposition
+
+%------------------------------------------------------------------------------
+min_LGG([equality_lgg(LGG,EqualityCost,AtomCost,TotalCost)],
+equality_lgg(LGG,EqualityCost,AtomCost,TotalCost)):-
+    !.
+
+min_LGG([equality_lgg(LGGSoFar,EqualityCostSoFar,AtomCostSoFar,TotalCostSoFar),
+equality_lgg(_LGG,_EqualityCost,_AtomCost,TotalCost)|RestLGGs],
+equality_lgg(MinLGG,MinEqualityCost,MinAtomCost,MinTotalCost)):-
+    TotalCostSoFar =< TotalCost,
+    !,
+    min_LGG([equality_lgg(LGGSoFar,EqualityCostSoFar,AtomCostSoFar,
+TotalCostSoFar)|RestLGGs],equality_lgg(MinLGG,MinEqualityCost,MinAtomCost,
+MinTotalCost)).
+
+min_LGG([_,equality_lgg(LGG,EqualityCost,AtomCost,TotalCost)|RestLGGs],
+equality_lgg(MinLGG,MinEqualityCost,MinAtomCost,MinTotalCost)):-
+    min_LGG([equality_lgg(LGG,EqualityCost,AtomCost,TotalCost)|RestLGGs],
+equality_lgg(MinLGG,MinEqualityCost,MinAtomCost,MinTotalCost)).
+
+%------------------------------------------------------------------------------
+%----Do equality with drill down.
+lgg_atom('$tptp_equal'(LHS,RHS),Atom,LGG,EqualityCost,AtomCost,TotalCost):-
+    nonvar(LHS),
+    nonvar(RHS),
+    !,
+    Atom =.. [Symbol|TermArgs],
+    findall(equality_lgg(LGG,EqualityCost,AtomCost,TotalCost),
+        (   lgg_equality_term(LHS,TermArgs,1,LGGArgs,EqualityCost,AtomCost,
+TotalCost),
+            LGG =.. [Symbol|LGGArgs] ) ,
+        LGGs_LHS),
+    findall(equality_lgg(LGG,EqualityCost,AtomCost,TotalCost),
+        (   lgg_equality_term(RHS,TermArgs,1,LGGArgs,EqualityCost,AtomCost,
+TotalCost),
+            LGG =.. [Symbol|LGGArgs] ) ,
+        LGGs_RHS),
+    append(LGGs_LHS,LGGs_RHS,LGGs),
+    min_LGG(LGGs,equality_lgg(LGG,EqualityCost,AtomCost,TotalCost)).
+    
+lgg_atom(NonEqualityAtom,'$tptp_equal'(LHS,RHS),LGG,AtomCost,EqualityCost,
+TotalCost):-
+    nonvar(LHS),
+    nonvar(RHS),
+    NonEqualityAtom =.. [Symbol|_],
+    Symbol \== '$tptp_equal',
+    !,
+    lgg_atom('$tptp_equal'(LHS,RHS),NonEqualityAtom,LGG,EqualityCost,AtomCost,
+TotalCost).
+
+%----Non-equality uses plain LGG stuff
+lgg_atom(Atom1,Atom2,LGG,AtomCost1,AtomCost2,TotalCost):-
+    lgg_term(Atom1,Atom2,0,LGG,AtomCost1,AtomCost2,TotalCost).
 
 %------------------------------------------------------------------------------
 lgg_atoms_distances(Atoms1,Atoms2,AtomDistances):-
@@ -397,21 +486,60 @@ hausdorff(AtomDistances,HausdorfDistance):-
 
     max_list([MaxMinDistance1,MaxMinDistance2],HausdorfDistance).
 %------------------------------------------------------------------------------
+happydorff(AtomDistances,HappydorfDistance):-
+    numbervars(AtomDistances,0,_),
+
+    tptp2X_findall_setof1(Atom1,member(Atom1-_-->_,AtomDistances),Atoms1),
+    findall(Atom1-Atom1Distances,
+        (   member(Atom1,Atoms1),
+            findall(Distance1,
+                member(Atom1-_-->Distance1,AtomDistances),
+                Atom1Distances ) ),
+            Atoms1Distances ),
+    findall(MinDistance1,
+        (   member(Atom1-Distances1,Atoms1Distances),
+            max_list(Distances1,MinDistance1) ),
+        Atoms1MinDistances ),
+    min_list(Atoms1MinDistances,MaxMinDistance1),
+
+    tptp2X_findall_setof1(Atom2,member(_-Atom2-->_,AtomDistances),Atoms2),
+    findall(Atom2-Atom2Distances,
+        (   member(Atom2,Atoms2),
+            findall(Distance2,
+                member(_-Atom2-->Distance2,AtomDistances),
+                Atom2Distances ) ),
+            Atoms2Distances ),
+    findall(MinDistance2,
+        (   member(Atom2-Distances2,Atoms2Distances),
+            max_list(Distances2,MinDistance2) ),
+        Atoms2MinDistances ),
+    min_list(Atoms2MinDistances,MaxMinDistance2),
+
+    min_list([MaxMinDistance1,MaxMinDistance2],HappydorfDistance).
+%------------------------------------------------------------------------------
+formula_distance_from_atom_distances(AtomDistances,Distance):-
+    happydorff(AtomDistances,Distance).
+
+%------------------------------------------------------------------------------
 %----Do all pairs of formulae
 lgg_annotated_formulae_distances([_],[]):-
     !.
 
-lgg_annotated_formulae_distances([AnnotatedFormula1,AnnotatedFormula2|
-RestOfFormulae],[Name1-Name2-->Distance|RestOfDistances]):-
+lgg_annotated_formulae_distances([AnnotatedFormula1,FirstOtherFormula|
+RestOfFormulae],AllDistances):-
     AnnotatedFormula1 =.. [_,Name1|_],
-    AnnotatedFormula2 =.. [_,Name2|_],
     extract_atoms_from_formulae([AnnotatedFormula1],_,_,no,Atoms1),
-    extract_atoms_from_formulae([AnnotatedFormula2],_,_,no,Atoms2),
-    lgg_atoms_distances(Atoms1,Atoms2,AtomDistances),
+    findall(Name1-Name2-->Distance,
+        (   member(AnnotatedFormula2,[FirstOtherFormula|RestOfFormulae]),
+            AnnotatedFormula2 =.. [_,Name2|_],
+            extract_atoms_from_formulae([AnnotatedFormula2],_,_,no,Atoms2),
+            lgg_atoms_distances(Atoms1,Atoms2,AtomDistances),
 %DEBUG write('AtomDistances '),write(AtomDistances),nl,
-    hausdorff(AtomDistances,Distance),
-    lgg_annotated_formulae_distances([AnnotatedFormula2|RestOfFormulae],
-RestOfDistances).
+            formula_distance_from_atom_distances(AtomDistances,Distance) ),
+        Distances1),
+    lgg_annotated_formulae_distances([FirstOtherFormula|RestOfFormulae],
+RestOfDistances),
+    append(Distances1,RestOfDistances,AllDistances).
 
 %------------------------------------------------------------------------------
 write_distances([]).
@@ -426,68 +554,23 @@ write_distances([Name1-Name2-->Distance|Rest]):-
     write(PaddedDistance),nl,
     write_distances(Rest).
 %------------------------------------------------------------------------------
-pad_number(DecimalNumber,DecimalPlaces,FormattedNumber):-
-    atom_chars(DecimalNumber,NumberChars),
-    append(IntegerPartChars,['.'|FractionalPartChars],NumberChars),
-    !,
-    atom_chars(FractionalPart,FractionalPartChars),
-    pad_number_fractional_part(FractionalPart,DecimalPlaces,
-PaddedFractionalPart),
-    atom_chars(IntegerPart,IntegerPartChars),
-    atomic_list_concat([IntegerPart,'.',PaddedFractionalPart],
-FormattedNumber).
-
-pad_number(IntegerNumber,DecimalPlaces,FormattedNumber):-
-    pad_number_fractional_part('',DecimalPlaces,Zeros),
-    atomic_list_concat([IntegerNumber,'.',Zeros],FormattedNumber).
-
-%------------------------------------------------------------------------------
-pad_number_fractional_part(FractionalPart,DecimalPlaces,PaddedFractionalPart):-
-    atom_length(FractionalPart,FractionalPartLength),
-    FractionalPartLength =< DecimalPlaces,
-    !,
-    ZerosNeeded is DecimalPlaces - FractionalPartLength,
-    pad_atom(FractionalPart,right,ZerosNeeded,'0',PaddedFractionalPart).
-
-pad_number_fractional_part(FractionalPart,DecimalPlaces,PaddedFractionalPart):-
-    length(LengthList,DecimalPlaces),
-    atom_chars(FractionalPart,FractionalPartChars),
-    append(LengthList,_,FractionalPartChars),
-    atom_chars(PaddedFractionalPart,LengthList).
-
-%------------------------------------------------------------------------------
-pad_atom(Atom,_,Size,_,Atom):-
-    atom_length(Atom,AtomLength),
-    AtomLength >= Size,
-    !.
-
-pad_atom(Atom,Side,Size,Character,PaddedAtom):-
-    atom_length(Atom,AtomLength),
-    SpacesNeeded is Size - AtomLength,
-    space_atom(SpacesNeeded,Character,[],SpacesAtom),
-    (   Side == right
-    ->  atom_concat(Atom,SpacesAtom,PaddedAtom)
-    ;   atom_concat(SpacesAtom,Atom,PaddedAtom) ).
-
-%------------------------------------------------------------------------------
-space_atom(SpacesNeeded,_,ListOfSpaces,SpacesAtom):-
-    SpacesNeeded =< 0,
-    !,
-    atom_chars(SpacesAtom,ListOfSpaces).
-
-space_atom(SpacesNeeded,Character,ListSoFar,SpacesAtom):-
-    LessSpacesNeeded is SpacesNeeded - 1,
-    space_atom(LessSpacesNeeded,Character,[Character|ListSoFar],SpacesAtom).
-
-%------------------------------------------------------------------------------
 lgg_file_distances(TPTPFileName,Distances):-
     declare_TPTP_operators,
     read_formulae_from_file(TPTPFileName,AnnotatedFormulae,_),
     lgg_annotated_formulae_distances(AnnotatedFormulae,LocalDistances),
-    ( Distances == print -> (   
-        write_distances(LocalDistances),
-        nl 
-    ) ; (   
-        Distances = LocalDistances )
+    ( Distances == print
+    -> ( write_distances(LocalDistances),
+         nl )
+    ),
+    member(Conjecture,AnnotatedFormulae),
+    Conjecture =.. [_,ConjectureName,conjecture|_],
+    dijkstra(LocalDistances,ConjectureName,ShortestPaths),
+    findall(ConjectureName-AxiomName-->Distance,
+        member(AxiomName-Distance,ShortestPaths),
+        ShortestConjecturePaths),
+    ( Distances == print
+    -> ( write_distances(ShortestConjecturePaths),
+         nl )
+    ;  ( Distances = ShortestConjecturePaths )
     ).
 %------------------------------------------------------------------------------

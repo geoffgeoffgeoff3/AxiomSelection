@@ -1,3 +1,5 @@
-fof(a1,axiom,b != a).
+fof(a1,axiom,a = b).
 
-fof(a2,axiom,b = a).
+fof(a2,axiom,p(b)).
+
+fof(c,conjecture,p(a)).
