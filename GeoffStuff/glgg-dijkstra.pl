@@ -37,11 +37,12 @@ choose_open_closest([H|T],MinV,Rest):-
 choose_minv([],MinV,MinV,[]).
 
 choose_minv([V1-D1|T],V-D,MinV,[H2|Rest]):-
-   (   D1 < D 
-   ->  (   NextM = (V1-D1),
-           H2 = (V-D) )
-   ;   (   NextM = (V-D),
-           H2 = (V1-D1) ) ),
+   ( D1 < D 
+   ->( NextM = (V1-D1),
+       H2 = (V-D) )
+   ; ( NextM = (V-D),
+       H2 = (V1-D1) ) 
+   ),
    choose_minv(T,NextM,MinV,Rest).
 
 %------------------------------------------------------------------------------
@@ -49,9 +50,10 @@ choose_minv([V1-D1|T],V-D,MinV,[H2|Rest]):-
 list_difference([],_,[]).
 
 list_difference([(V-D)|T],Closed,L):-
-   (   member(V-_,Closed) 
+   ( member(V-_,Closed) 
    ->  L=NewT 
-   ;   L=[(V-D)|NewT] ),
+   ;   L=[(V-D)|NewT] 
+   ),
    list_difference(T,Closed,NewT).
 
 %------------------------------------------------------------------------------
@@ -59,10 +61,11 @@ list_difference([(V-D)|T],Closed,L):-
 merge([],L,_,L).
 
 merge([V1-D1|T],Open,D,NewOpen):-
-   (   remove(Open,V1-D2,RestOpen)
+   ( remove(Open,V1-D2,RestOpen)
    ->  VD is min(D2,D+D1)
-   ;   (   RestOpen = Open,
-           VD is D+D1 ) ),
+   ; ( RestOpen = Open,
+       VD is D+D1 ) 
+   ),
    NewOpen = [(V1-VD)|SubOpen],
    merge(T,RestOpen,D,SubOpen).
 

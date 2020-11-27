@@ -37,9 +37,10 @@ pad_atom(Atom,Side,Size,Character,PaddedAtom):-
     atom_length(Atom,AtomLength),
     CharactersNeeded is Size - AtomLength,
     space_atom(CharactersNeeded,Character,[],SpacesAtom),
-    (   Side == right
+    ( Side == right
     ->  atom_concat(Atom,SpacesAtom,PaddedAtom)
-    ;   atom_concat(SpacesAtom,Atom,PaddedAtom) ).
+    ;   atom_concat(SpacesAtom,Atom,PaddedAtom) 
+    ).
 
 %------------------------------------------------------------------------------
 space_atom(SpacesNeeded,_,ListOfSpaces,SpacesAtom):-

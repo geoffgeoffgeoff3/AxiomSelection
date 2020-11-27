@@ -1,0 +1,13 @@
+#!/usr/local/bin/swipl -q
+
+:- set_prolog_flag(verbose, silent).
+:- initialization main.
+
+main:-
+    consult('glgg.pl'),
+    current_prolog_flag(argv,[Input,Output]),
+    lgg_file_distances(Input,Output),
+    halt.
+
+main:-
+    halt.

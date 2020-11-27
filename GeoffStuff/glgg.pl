@@ -420,12 +420,16 @@ lgg_atom('$tptp_equal'(LHS,RHS),Atom,LGG,EqualityCost,AtomCost,TotalCost):-
     Atom =.. [Symbol|TermArgs],
     findall(equality_lgg(LGG,EqualityCost,AtomCost,TotalCost),
         (   lgg_equality_term(LHS,TermArgs,1,LGGArgs,EqualityCost,AtomCost,
-TotalCost),
+TermTotalCost),
+            weight('$tptp_equal',0,EqualityPredicateCost),
+            TotalCost is TermTotalCost + EqualityPredicateCost,
             LGG =.. [Symbol|LGGArgs] ) ,
         LGGs_LHS),
     findall(equality_lgg(LGG,EqualityCost,AtomCost,TotalCost),
         (   lgg_equality_term(RHS,TermArgs,1,LGGArgs,EqualityCost,AtomCost,
-TotalCost),
+TermTotalCost),
+            weight('$tptp_equal',0,EqualityPredicateCost),
+            TotalCost is TermTotalCost + EqualityPredicateCost,
             LGG =.. [Symbol|LGGArgs] ) ,
         LGGs_RHS),
     append(LGGs_LHS,LGGs_RHS,LGGs),
@@ -554,23 +558,32 @@ write_distances([Name1-Name2-->Distance|Rest]):-
     write(PaddedDistance),nl,
     write_distances(Rest).
 %------------------------------------------------------------------------------
-lgg_file_distances(TPTPFileName,Distances):-
+lgg_file_distances(TPTPFileName,OutputFileOrVar):-
     declare_TPTP_operators,
     read_formulae_from_file(TPTPFileName,AnnotatedFormulae,_),
     lgg_annotated_formulae_distances(AnnotatedFormulae,LocalDistances),
-    ( Distances == print
-    -> ( write_distances(LocalDistances),
-         nl )
-    ),
     member(Conjecture,AnnotatedFormulae),
     Conjecture =.. [_,ConjectureName,conjecture|_],
     dijkstra(LocalDistances,ConjectureName,ShortestPaths),
     findall(ConjectureName-AxiomName-->Distance,
         member(AxiomName-Distance,ShortestPaths),
         ShortestConjecturePaths),
-    ( Distances == print
-    -> ( write_distances(ShortestConjecturePaths),
-         nl )
-    ;  ( Distances = ShortestConjecturePaths )
+    ( nonvar(OutputFileOrVar)
+    ->( ( OutputFileOrVar \== user 
+        ->( current_output(CurrentOutput),
+            open(OutputFileOrVar,write,OutputFileStream),
+            set_output(OutputFileStream) ) 
+          ; true
+        ),
+        write_distances(LocalDistances),
+        nl,
+        write_distances(ShortestConjecturePaths),
+        nl,
+        ( OutputFileOrVar \== user
+        ->( close(OutputFileStream),
+            set_output(CurrentOutput))
+        ;   true 
+        ) )
+    ; OutputFileOrVar = ShortestConjecturePaths
     ).
 %------------------------------------------------------------------------------
