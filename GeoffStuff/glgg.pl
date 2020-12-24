@@ -120,105 +120,6 @@ tptp2X_invert_literal(++Atom,--Atom).
 
 tptp2X_invert_literal(--Atom,++Atom).
 %------------------------------------------------------------------------------
-%----Make a subset of a list
-tptp2X_subset([],[]).
-
-tptp2X_subset([_|T],Subset):-
-    tptp2X_subset(T,Subset).
-
-tptp2X_subset([H|T],[H|RestOfSubset]):-
-    tptp2X_subset(T,RestOfSubset).
-%------------------------------------------------------------------------------
-%----Simple append, required in tptpread. Renamed to avoid confusion
-%----with builtins.
-tptp2X_append([],List,List).
-
-tptp2X_append([Head|Tail],List,[Head|TailList]):-
-    tptp2X_append(Tail,List,TailList).
-%------------------------------------------------------------------------------
-%----Simple select. Renamed to avoid confusion with builtins.
-tptp2X_select(Element,[Element|Tail],Tail).
-
-tptp2X_select(Element,[Head|Tail],[Head|SelectedTail]):-
-    tptp2X_select(Element,Tail,SelectedTail).
-%------------------------------------------------------------------------------
-%----Select the Nth element.
-tptp2X_select_Nth(Element,[Element|Tail],1,Tail).
-
-tptp2X_select_Nth(Element,[Head|Tail],N,[Head|SelectedTail]):-
-    integer(N),
-    N > 1,
-    NewN is N - 1,
-    tptp2X_select_Nth(Element,Tail,NewN,SelectedTail).
-
-tptp2X_select_Nth(Element,[Head|Tail],N,[Head|SelectedTail]):-
-    var(N),
-    tptp2X_select_Nth(Element,Tail,NewN,SelectedTail),
-    N is NewN + 1.
-%------------------------------------------------------------------------------
-%----List difference
-tptp2X_list_difference(Remainder,[],Remainder).
-
-tptp2X_list_difference(List,[FirstToRemove|RestToRemove],Remainder):-
-    tptp2X_select(FirstToRemove,List,OthersInList),
-    !,
-    tptp2X_list_difference(OthersInList,RestToRemove,Remainder).
-
-tptp2X_list_difference(List,[_|RestToRemove],Remainder):-
-    tptp2X_list_difference(List,RestToRemove,Remainder).
-%------------------------------------------------------------------------------
-%----Simple member. Renamed to avoid confusion with builtins.
-tptp2X_member(Element,[Element|_]).
-
-tptp2X_member(Element,[_|Tail]):-
-    tptp2X_member(Element,Tail).
-%------------------------------------------------------------------------------
-%----Exact member without unification. Only a test, not for extraction
-tptp2X_exact_member(Element,[Head|_]):-
-    Element == Head.
-
-tptp2X_exact_member(Element,[_|Tail]):-
-    tptp2X_exact_member(Element,Tail).
-%------------------------------------------------------------------------------
-%----Simple length. Renamed to avoid confusion with builtins.
-tptp2X_length([],0).
-
-tptp2X_length([_|Tail],Length):-
-    tptp2X_length(Tail,TailLength),
-    Length is TailLength + 1.
-%------------------------------------------------------------------------------
-tptp2X_atom_length(Atom,AtomLength):-
-     name(Atom,AtomASCII),
-     tptp2X_length(AtomASCII,AtomLength).
-%------------------------------------------------------------------------------
-%----Setof1 does setof, but allows empty list to be returned
-tptp2X_setof1(Variable,Goal,List):-
-    setof(Variable,Goal,List),
-    !.
-
-tptp2X_setof1(_,_,[]).
-%------------------------------------------------------------------------------
-%----bagof1 does bagof, but allows empty list to be returned
-tptp2X_bagof1(Variable,Goal,List):-
-    bagof(Variable,Goal,List),
-    !.
-
-tptp2X_bagof1(_,_,[]).
-%------------------------------------------------------------------------------
-%----setof that ignores other variables and returns an empty list rather
-%----than failing.
-tptp2X_findall_setof1(Variable,Predicate,UniqueValues):-
-    findall(Variable,Predicate,AllValues),
-    tptp2X_setof1(Member,tptp2X_member(Member,AllValues),UniqueValues).
-%------------------------------------------------------------------------------
-%----Concatenate a list of terms into a big atom (only SWI here)
-concatenate_atoms([Atom],Atom):-
-    !.
-
-concatenate_atoms([Atom|RestAtoms],ConcatenatedAtom):-
-    concatenate_atoms(RestAtoms,RestAtom),
-    atom_concat(Atom,RestAtom,ConcatenatedAtom).
-%------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
 weight(Var,_NestingLevel,1):-
@@ -549,8 +450,8 @@ RestOfDistances),
 write_distances([]).
 
 write_distances([Name1-Name2-->Distance|Rest]):-
-    pad_atom(Name1,right,20,' ',PaddedName1),
-    pad_atom(Name2,right,20,' ',PaddedName2),
+    pad_atom(Name1,right,30,' ',PaddedName1),
+    pad_atom(Name2,right,30,' ',PaddedName2),
     pad_number(Distance,4,FormattedDistance),
     pad_atom(FormattedDistance,left,8,' ',PaddedDistance),
     write(PaddedName1),write(' '),
@@ -558,13 +459,8 @@ write_distances([Name1-Name2-->Distance|Rest]):-
     write(PaddedDistance),nl,
     write_distances(Rest).
 %------------------------------------------------------------------------------
-lgg_file_distances(TPTPFileName,OutputFileOrVar):-
-    declare_TPTP_operators,
-    read_formulae_from_file(TPTPFileName,AnnotatedFormulae,_),
-    lgg_annotated_formulae_distances(AnnotatedFormulae,LocalDistances),
-    member(Conjecture,AnnotatedFormulae),
-    Conjecture =.. [_,ConjectureName,conjecture|_],
-    dijkstra(LocalDistances,ConjectureName,ShortestPaths),
+lgg_distances_output(ConjectureName,_FormulaDistances,ShortestPaths,
+OutputFileOrVar):-
     findall(ConjectureName-AxiomName-->Distance,
         member(AxiomName-Distance,ShortestPaths),
         ShortestConjecturePaths),
@@ -575,8 +471,8 @@ lgg_file_distances(TPTPFileName,OutputFileOrVar):-
             set_output(OutputFileStream) ) 
           ; true
         ),
-        write_distances(LocalDistances),
-        nl,
+%        write_distances(FormulaDistances),
+%        nl,
         write_distances(ShortestConjecturePaths),
         nl,
         ( OutputFileOrVar \== user
@@ -586,4 +482,15 @@ lgg_file_distances(TPTPFileName,OutputFileOrVar):-
         ) )
     ; OutputFileOrVar = ShortestConjecturePaths
     ).
+
+%------------------------------------------------------------------------------
+lgg_file_distances(TPTPFileName,OutputFileOrVar):-
+    declare_TPTP_operators,
+    read_formulae_from_file(TPTPFileName,AnnotatedFormulae,_),
+    lgg_annotated_formulae_distances(AnnotatedFormulae,FormulaDistances),
+    one_member(fof(ConjectureName,conjecture,_),AnnotatedFormulae),
+    dijkstra(FormulaDistances,ConjectureName,ShortestPaths),
+    lgg_distances_output(ConjectureName,FormulaDistances,ShortestPaths,
+OutputFileOrVar).
+
 %------------------------------------------------------------------------------

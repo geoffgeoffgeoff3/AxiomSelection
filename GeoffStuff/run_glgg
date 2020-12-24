@@ -1,6 +1,7 @@
 #!/usr/local/bin/swipl -q
 
 :- set_prolog_flag(verbose, silent).
+:- set_prolog_flag(stack_limit, 34359738368).
 :- initialization main.
 
 main:-
