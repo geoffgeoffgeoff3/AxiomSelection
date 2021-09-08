@@ -459,11 +459,12 @@ write_distances([Name1-Name2-->Distance|Rest]):-
     write(PaddedDistance),nl,
     write_distances(Rest).
 %------------------------------------------------------------------------------
-lgg_distances_output(ConjectureName,_FormulaDistances,ShortestPaths,
+lgg_distances_output(_ConjectureName,FormulaDistances,_ShortestPaths,
 OutputFileOrVar):-
-    findall(ConjectureName-AxiomName-->Distance,
-        member(AxiomName-Distance,ShortestPaths),
-        ShortestConjecturePaths),
+%----Collect Dijkstra distances
+%    findall(ConjectureName-AxiomName-->Distance,
+%        member(AxiomName-Distance,ShortestPaths),
+%        ShortestConjecturePaths),
     ( nonvar(OutputFileOrVar)
     ->( ( OutputFileOrVar \== user 
         ->( current_output(CurrentOutput),
@@ -471,16 +472,20 @@ OutputFileOrVar):-
             set_output(OutputFileStream) ) 
           ; true
         ),
-%        write_distances(FormulaDistances),
-%        nl,
-        write_distances(ShortestConjecturePaths),
+%----Print GEHD distances
+        write_distances(FormulaDistances),
+%----Print Dijkstra distances
+%        write_distances(ShortestConjecturePaths), 
         nl,
         ( OutputFileOrVar \== user
         ->( close(OutputFileStream),
             set_output(CurrentOutput))
         ;   true 
         ) )
-    ; OutputFileOrVar = ShortestConjecturePaths
+%----Return GEHD distances
+    ; OutputFileOrVar = FormulaDistances
+%----Return Dijkstra distances
+%    ; OutputFileOrVar = ShortestConjecturePaths
     ).
 
 %------------------------------------------------------------------------------
@@ -489,8 +494,9 @@ lgg_file_distances(TPTPFileName,OutputFileOrVar):-
     read_formulae_from_file(TPTPFileName,AnnotatedFormulae,_),
     lgg_annotated_formulae_distances(AnnotatedFormulae,FormulaDistances),
     one_member(fof(ConjectureName,conjecture,_),AnnotatedFormulae),
-    dijkstra(FormulaDistances,ConjectureName,ShortestPaths),
-    lgg_distances_output(ConjectureName,FormulaDistances,ShortestPaths,
+%----Compute Dijkstra distances
+%    dijkstra(FormulaDistances,ConjectureName,ShortestPaths),
+    lgg_distances_output(ConjectureName,FormulaDistances,_ShortestPaths,
 OutputFileOrVar).
 
 %------------------------------------------------------------------------------
